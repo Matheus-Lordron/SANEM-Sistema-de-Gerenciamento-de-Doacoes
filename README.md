@@ -18,7 +18,7 @@ Substitui o controle manual por um sistema centralizado que gerencia doadores, b
 |------|--------|
 | Adriel | Desenvolvedor |
 | Bolívar | Desenvolvedor |
-| João Pedro Zanette | Desenvolvedor |
+| João Pedro Zanette | Scrum Master |
 | Matheus Lodron | Desenvolvedor |
 
 ---
