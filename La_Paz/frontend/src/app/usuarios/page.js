@@ -4,24 +4,63 @@ import { useEffect, useState } from "react";
 import Navigation from "../components/navegation/navegation";
 import MenuBar from "../components/menubar/menubar";
 import UserCard from "../components/UserCard";
+import { apiFetch } from "../../lib/api";
+
+function mapVoluntaryToUser(voluntary) {
+  return {
+    id: voluntary.id,
+    name: voluntary.person?.name || "Sem nome",
+    email: voluntary.person?.email || "Sem e-mail",
+  };
+}
 
 export default function UsuariosPage() {
   const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState(""); // estado do filtro
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Busca todos os usuários na API fake
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((res) => res.json())
-      .then((data) => setUsers(data))
-      .catch((err) => console.error("Erro ao buscar usuários:", err));
+    let isMounted = true;
+
+    async function loadUsers() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const data = await apiFetch("/api/voluntaries", { auth: true });
+
+        if (isMounted) {
+          setUsers(Array.isArray(data) ? data.map(mapVoluntaryToUser) : []);
+        }
+      } catch (requestError) {
+        if (!isMounted) {
+          return;
+        }
+
+        if (requestError.status === 401 || requestError.status === 403) {
+          setError("Voce precisa fazer login para visualizar os usuarios.");
+        } else {
+          setError(requestError.message || "Erro ao buscar usuarios.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadUsers();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Filtra usuários com base na busca
   const filteredUsers = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
+    (user) =>
+      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -42,14 +81,13 @@ export default function UsuariosPage() {
             margin: "0 auto",
           }}
         >
-          <h2 style={{ color: "#0070f3", marginBottom: "20px" }}>Usuários</h2>
+          <h2 style={{ color: "#0070f3", marginBottom: "20px" }}>Usuarios</h2>
 
-          {/* Input de busca */}
           <input
             type="text"
             placeholder="Buscar por nome ou e-mail..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(event) => setSearch(event.target.value)}
             style={{
               padding: "10px",
               width: "100%",
@@ -60,11 +98,14 @@ export default function UsuariosPage() {
             }}
           />
 
-          {/* Renderiza os usuários filtrados */}
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((u) => <UserCard key={u.id} user={u} />)
+          {loading ? (
+            <p>Carregando usuarios...</p>
+          ) : error ? (
+            <p style={{ color: "#c62828", textAlign: "center" }}>{error}</p>
+          ) : filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => <UserCard key={user.id} user={user} />)
           ) : (
-            <p>Nenhum usuário encontrado.</p>
+            <p>Nenhum usuario encontrado.</p>
           )}
         </main>
       </div>
