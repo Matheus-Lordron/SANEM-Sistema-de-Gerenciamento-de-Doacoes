@@ -27,14 +27,14 @@ Substitui o controle manual por um sistema centralizado que gerencia doadores, b
 
 ```
 sanem/
-├── docs/
-│   ├── requisitos/          # Levantamento de requisitos funcionais e não funcionais
-│   ├── diagramas/           # MER, diagrama de classes, diagrama de casos de uso
-│   └── banco-de-dados/      # Prints da base implementada
-├── database/
-│   ├── scripts/             # Script DDL de criação do banco de dados
-│   ├── queries/             # Consultas SQL demonstrativas
-│   └── populacao/           # Script de população com dados fictícios
+├── Arquivos_Projeto_SANEM_LaPaz/
+│   ├── documentacao_arquivos_level_1_a_4/
+│   │   ├── database/          # Scripts DDL, população e queries SQL
+│   │   └── docs/diagramas/    # MER e arquivos do MySQL Workbench
+├── La_Paz/
+│   ├── backend/               # API REST em Java Spring Boot
+│   ├── frontend/              # Interface Web em Next.js
+│   └── documentation/         # Propostas de arquitetura e documentos formais
 └── README.md
 ```
 
@@ -42,10 +42,10 @@ sanem/
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Banco de Dados:** MySQL
-- **IDE/Ferramenta:** MySQL Workbench + DataGrip
+- **Front-end:** Next.js 15, React 19, Axios e jsPDF
+- **Back-end:** Java 17, Spring Boot 3.4.5 e Spring Security (JWT)
+- **Banco de Dados:** PostgreSQL (Produção) e H2 (Testes)
 - **Versionamento:** Git + GitHub
-- **Modelagem:** MySQL Workbench (MWB)
 
 ---
 
@@ -63,8 +63,6 @@ O banco `sanem` é composto pelas seguintes tabelas:
 | `movimentacao` | Registro de entradas (doações recebidas) e saídas (entregas) |
 | `movimentacao_item` | Itens vinculados a cada movimentação |
 
-### Views
-- `vw_consumo_mensal_beneficiario` — Consolida o total de itens recebidos por beneficiário no mês e o saldo disponível.
 
 ---
 
@@ -79,34 +77,25 @@ O banco `sanem` é composto pelas seguintes tabelas:
 
 ---
 
-## ⚙️ Como executar o banco de dados localmente
-
-1. Tenha o **MySQL** instalado (versão 8+ recomendada).
-2. Execute os scripts na seguinte ordem:
-
+### 1. Back-end (Java/Spring)
 ```bash
-# 1. Criação das tabelas, triggers e views
-mysql -u root -p < database/scripts/sanem_sql_script_database_creation.sql
-
-# 2. População com dados fictícios
-mysql -u root -p < database/populacao/sanem_populacao_database.sql
-
-# 3. (Opcional) Executar queries demonstrativas
-mysql -u root -p sanem < database/queries/querys_sanem_database.sql
-```
-
+cd La_Paz/backend
+./mvnw spring-boot:run
 ---
+### 2. Front-end (Next.js)
+```bash
+cd La_Paz/frontend
+npm install
+npm run dev
 
-## 📄 Documentação
+📄 Documentação
+Os documentos técnicos detalhados podem ser encontrados na pasta de documentação:
 
-Toda a documentação do projeto está na pasta `/docs`:
+Modelo Entidade-Relacionamento (MER) — Localizado em /docs/diagramas/
 
-- **Levantamento de Requisitos** — Requisitos funcionais, não funcionais e regras de negócio
-- **MER (Modelo Entidade-Relacionamento)** — Diagrama do banco de dados
-- **Diagrama de Classes** — Estrutura orientada a objetos do sistema
-- **Diagrama de Casos de Uso** — Interações dos atores com o sistema
-- **Prints da Base Implementada** — Evidências do banco em funcionamento
+Proposta de Arquitetura Tecnológica — Localizado em /documentation/
 
+Manual de Equipe (BugBusters) — Localizado em /documentation/
 ---
 
 *Disciplina: Oficina de Desenvolvimento de Software — 2026*
