@@ -25,35 +25,91 @@ const CadastroVoluntario = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  // Garante que o CPF só aceite números e trave em 11 dígitos
+  const handleCpfChange = (e) => {
+    const apenasNumeros = e.target.value.replace(/\D/g, "");
+    if (apenasNumeros.length <= 11) {
+      setForm({ ...form, cpf: apenasNumeros });
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    // Limpa o CPF para garantir que só vai número
-    const cpfLimpo = form.cpf.replace(/\D/g, "");
-    // Validação de telefone (aceita ambos formatos)
-    const telefoneLimpo = form.telefoneCelular.replace(/\D/g, "");
-    if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11) {
-      setError("Telefone deve conter entre 10 e 11 dígitos (incluindo DDD).");
+
+    // Validação estrita do CPF antes de enviar ao Java
+    if (form.cpf.length !== 11) {
+      setError("O CPF deve conter exatamente 11 dígitos numéricos.");
       setLoading(false);
       return;
     }
+
+    const telefoneLimpo = form.telefoneCelular.replace(/\D/g, "");
+
     try {
-      const novoVoluntario = {
-        id: Date.now(),
-        nomeCompleto: form.nomeCompleto,
-        telefoneCelular: form.telefoneCelular,
-        email: form.email,
-        cpf: cpfLimpo,
-        endereco: form.endereco,
-        bairro: form.bairro,
-        numero: form.numero,
-        complemento: form.complemento,
-        pontoReferencia: form.pontoReferencia
+      // 1️⃣ PASSO: Cadastrar o Endereço
+      const dadosEndereco = {
+        street: form.endereco,
+        neighborhood: form.bairro,
+        number: parseInt(form.numero, 10),
+        complement: form.complemento.trim() !== "" ? form.complemento : "Não informado",
+        referencePoint: form.pontoReferencia.trim() !== "" ? form.pontoReferencia : "Não informado"
       };
-      const voluntarios = JSON.parse(localStorage.getItem('mockVoluntarios') || '[]');
-      voluntarios.push(novoVoluntario);
-      localStorage.setItem('mockVoluntarios', JSON.stringify(voluntarios));
+
+      const enderecoResponse = await fetch("http://localhost:8080/api/addresses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dadosEndereco),
+      });
+
+      if (!enderecoResponse.ok) {
+        throw new Error(`Falha ao salvar endereço. Status: ${enderecoResponse.status}`);
+      }
+
+      const enderecoCriado = await enderecoResponse.json();
+      const idAddressGenerated = enderecoCriado.id;
+
+      // 2️⃣ PASSO: Cadastrar a Pessoa (Enviando o CPF com exatamente 11 dígitos limpos)
+      const dadosPessoa = {
+        name: form.nomeCompleto,
+        phone: telefoneLimpo,
+        email: form.email,
+        cpf: form.cpf, // Já está estritamente validado com 11 caracteres numéricos
+        idAddress: idAddressGenerated
+      };
+
+      const pessoaResponse = await fetch("http://localhost:8080/api/people", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dadosPessoa),
+      });
+
+      if (!pessoaResponse.ok) {
+        throw new Error(`Endereço salvou, mas falha ao cadastrar dados pessoais. Status: ${pessoaResponse.status}`);
+      }
+
+      const pessoaCriada = await pessoaResponse.json();
+      const personIdGenerated = pessoaCriada.id;
+
+      // 3️⃣ PASSO: Vincular a pessoa como Voluntário
+      const novoVoluntarioDto = {
+        personId: personIdGenerated,
+        password: "1234",
+        isActive: true
+      };
+
+      const voluntarioResponse = await fetch("http://localhost:8080/api/voluntaries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoVoluntarioDto),
+      });
+
+      if (!voluntarioResponse.ok) {
+        throw new Error(`Dados pessoais salvos, mas falhou ao definir perfil de voluntário. Status: ${voluntarioResponse.status}`);
+      }
+
+      // Limpa tudo após o sucesso
       setForm({
         nomeCompleto: "",
         telefoneCelular: "",
@@ -65,10 +121,13 @@ const CadastroVoluntario = () => {
         complemento: "",
         pontoReferencia: ""
       });
+      
       alert("Voluntário cadastrado com sucesso!");
-      router.push("/sucesso?tipo=voluntarios");
+      router.push("/cadastrovoluntario/lista");
+
     } catch (err) {
-      setError("Erro ao cadastrar voluntário");
+      console.error(err);
+      setError("Erro no cadastro: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -80,7 +139,7 @@ const CadastroVoluntario = () => {
       <Navegation />
       <div className={styles.formWrapper}>
         <div className={styles.formContainer}>
-          <h1 className={styles.titulo}>Cadastro de Funcionário</h1>
+          <h1 className={styles.titulo}>Cadastro de Voluntário</h1>
           <div className={styles.decoracao}></div>
           <form onSubmit={handleSubmit} className={styles.formulario}>
             <div className={styles.formGroup}>
@@ -93,11 +152,11 @@ const CadastroVoluntario = () => {
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="telefoneCelular"><b>Telefone*</b></label>
-              <input id="telefoneCelular" name="telefoneCelular" value={form.telefoneCelular} onChange={handleChange} required placeholder="(45) 9 9988-7766" type="tel" />
+              <input id="telefoneCelular" name="telefoneCelular" value={form.telefoneCelular} onChange={handleChange} required placeholder="(45) 99988-7766" />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="cpf"><b>CPF*</b></label>
-              <input id="cpf" name="cpf" type="text" pattern="[0-9]*" maxLength={11} value={form.cpf} onChange={e => { const onlyNums = e.target.value.replace(/\D/g, ""); setForm({ ...form, cpf: onlyNums }); }} placeholder="11122233355" required />
+              <label htmlFor="cpf"><b>CPF (Apenas 11 números)*</b></label>
+              <input id="cpf" name="cpf" type="text" value={form.cpf} onChange={handleCpfChange} placeholder="Digite os 11 números" maxLength={11} required />
             </div>
             <hr className={styles.separador} />
             <div className={styles.formGroupFullWidth}>
@@ -110,7 +169,7 @@ const CadastroVoluntario = () => {
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="complemento"><b>Complemento</b></label>
-              <input id="complemento" name="complemento" value={form.complemento} onChange={handleChange} placeholder="Ap 307" />
+              <input id="complemento" name="complemento" value={form.complemento} onChange={handleChange} placeholder="Ap 307 (opcional)" />
             </div>
             <div className={styles.formGroupFullWidth}>
               <label htmlFor="bairro"><b>Bairro*</b></label>
@@ -118,7 +177,7 @@ const CadastroVoluntario = () => {
             </div>
             <div className={styles.formGroupFullWidth}>
               <label htmlFor="pontoReferencia"><b>Ponto de referência</b></label>
-              <input id="pontoReferencia" name="pontoReferencia" value={form.pontoReferencia} onChange={handleChange} placeholder="Em frente ao parque" />
+              <input id="pontoReferencia" name="pontoReferencia" value={form.pontoReferencia} onChange={handleChange} placeholder="Em frente ao parque (opcional)" />
             </div>
             <button type="submit" disabled={loading}>
               {loading ? "Cadastrando..." : "Cadastrar Voluntário"}
@@ -131,4 +190,4 @@ const CadastroVoluntario = () => {
   );
 };
 
-export default CadastroVoluntario; 
+export default CadastroVoluntario;

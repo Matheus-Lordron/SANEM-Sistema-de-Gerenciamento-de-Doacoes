@@ -1,5 +1,6 @@
 package com.oficina_dev.backend.models.Voluntary;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.oficina_dev.backend.models.Donation.Donation;
 import com.oficina_dev.backend.models.Person.Person;
 import com.oficina_dev.backend.models.Transfer.Transfer;
@@ -39,8 +40,10 @@ public class Voluntary {
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt;
 
+    @Setter // 🚀 Adicionado para permitir setar/atualizar a pessoa se necessário
     @OneToOne
     @JoinColumn(name = "id_person", referencedColumnName = "id")
+    @JsonManagedReference // 🚀 Evita a recursão infinita (erro 500) ao serializar para JSON
     private Person person;
 
     @OneToMany(mappedBy = "voluntary")
@@ -65,5 +68,4 @@ public class Voluntary {
     public void setActive(boolean b) {
         this.isActive = b;
     }
-
 }
