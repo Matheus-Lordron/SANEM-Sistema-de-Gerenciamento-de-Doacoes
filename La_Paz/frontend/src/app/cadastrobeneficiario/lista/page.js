@@ -8,6 +8,7 @@ import styles from "./lista.module.css";
 // import formStyles from "../cadastrobeneficiario.module.css";
 import { useRouter } from "next/navigation";
 import modalStyles from "./lista.module.css";
+import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
 
 export default function ListaBeneficiarios() {
   const [beneficiarios, setBeneficiarios] = useState([]); // [{id, nomeCompleto, email, telefoneCelular, nif, ...}]
@@ -27,6 +28,7 @@ export default function ListaBeneficiarios() {
       setBeneficiarios(mock);
     } catch (err) {
       setError("Erro ao carregar beneficiários do mock");
+      toast.error("Erro ao carregar beneficiários."); // 🔴 Toast de erro
     } finally {
       setLoading(false);
     }
@@ -44,9 +46,12 @@ export default function ListaBeneficiarios() {
       const novos = beneficiarios.filter((b) => b.id !== id);
       setBeneficiarios(novos);
       localStorage.setItem('mockBeneficiarios', JSON.stringify(novos));
-      alert("Beneficiário excluído com sucesso!");
+      
+      // 🟢 Alerta de sucesso na exclusão
+      toast.success("Beneficiário excluído com sucesso!");
     } catch (err) {
       setError("Erro ao excluir beneficiário");
+      toast.error("Erro ao excluir beneficiário."); // 🔴 Toast de erro
     } finally {
       setLoading(false);
     }
@@ -100,8 +105,12 @@ export default function ListaBeneficiarios() {
       localStorage.setItem('mockBeneficiarios', JSON.stringify(novos));
       setEditModalOpen(false);
       setEditForm(null);
+      
+      // 🟢 Alerta de sucesso na edição
+      toast.success("Alterações salvas com sucesso!");
     } catch (err) {
       setEditError("Erro ao salvar edição");
+      toast.error("Erro ao salvar edição."); // 🔴 Toast de erro
     } finally {
       setEditLoading(false);
     }

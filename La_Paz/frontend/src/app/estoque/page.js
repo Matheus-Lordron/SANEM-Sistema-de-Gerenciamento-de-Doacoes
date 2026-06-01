@@ -5,6 +5,7 @@ import { mockEstoque as mockEstoqueOrig } from "../../mocks/mockEstoque";
 import styles from "./estoque.module.css";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
 
 const STORAGE_KEY = "mockEstoque";
 
@@ -68,6 +69,9 @@ export default function EstoquePage() {
     salvarNoStorage(updated);
     setNovoProduto({ nome: "", categoria: "", tamanho: "", quantidade: "" });
     setShowAddModal(false);
+    
+    // 🟢 Alerta de sucesso ao adicionar
+    toast.success("Produto adicionado com sucesso!");
   }
 
   function handleDeleteProduto() {
@@ -76,6 +80,9 @@ export default function EstoquePage() {
     salvarNoStorage(updated);
     setShowDeleteModal(false);
     setItemToDelete(null);
+
+    // 🟢 Alerta de sucesso ao excluir
+    toast.success("Produto excluído com sucesso!");
   }
 
   function openDeleteModal(item) {
@@ -114,6 +121,9 @@ export default function EstoquePage() {
       tamanho: "",
       quantidade: "",
     });
+
+    // 🟢 Alerta de sucesso ao salvar edição inline
+    toast.success("Produto atualizado com sucesso!");
   }
 
   function cancelEditProduto() {
