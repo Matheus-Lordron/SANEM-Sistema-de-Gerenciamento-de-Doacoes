@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Navigation from "../components/navegation/navegation";
 import MenuBar from "../components/menubar/menubar";
+import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
 
 export default function ConfiguracoesPage() {
   const [nome, setNome] = useState("Seu Nome Atual");
@@ -13,22 +14,36 @@ export default function ConfiguracoesPage() {
 
   function handleSaveProfile() {
     console.log("Salvar nome + descrição", { nome, descricao });
-    // Chamar API
+    // TODO: Chamar API no futuro
+    
+    // 🟢 Alerta de sucesso
+    toast.success("Perfil atualizado com sucesso!");
   }
 
   function handleChangePassword() {
     if (novaSenha !== confirmarSenha) {
-      alert("As senhas não coincidem!");
+      // 🔴 Substituindo o alert nativo pelo toast de erro
+      toast.error("As senhas não coincidem!");
       return;
     }
     console.log("Alterar senha", { senhaAtual, novaSenha });
-    // Chamar API
+    // TODO: Chamar API no futuro
+    
+    // 🟢 Alerta de sucesso e limpeza dos campos
+    toast.success("Senha atualizada com sucesso!");
+    setSenhaAtual("");
+    setNovaSenha("");
+    setConfirmarSenha("");
   }
 
   function handleDeleteAccount() {
-    if (confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível!")) {
+    // Mantemos o window.confirm por ser uma barreira de segurança nativa forte antes de deletar
+    if (window.confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível!")) {
       console.log("Conta excluída");
-      // Chamar API de exclusão
+      // TODO: Chamar API de exclusão no futuro
+      
+      // 🟢 Alerta de sucesso ao excluir
+      toast.success("Conta excluída com sucesso!");
     }
   }
 
@@ -51,7 +66,7 @@ export default function ConfiguracoesPage() {
         >
 
           {/* ============================== */}
-          {/*   SEÇÃO: EDITAR PERFIL         */}
+          {/* SEÇÃO: EDITAR PERFIL         */}
           {/* ============================== */}
           <section
             style={{
@@ -106,7 +121,7 @@ export default function ConfiguracoesPage() {
           </section>
 
           {/* ============================== */}
-          {/*   SEÇÃO: ALTERAR SENHA         */}
+          {/* SEÇÃO: ALTERAR SENHA         */}
           {/* ============================== */}
           <section
             style={{
@@ -176,7 +191,7 @@ export default function ConfiguracoesPage() {
           </section>
 
           {/* ============================== */}
-          {/*   SEÇÃO: EXCLUIR CONTA         */}
+          {/* SEÇÃO: EXCLUIR CONTA         */}
           {/* ============================== */}
           <section
             style={{

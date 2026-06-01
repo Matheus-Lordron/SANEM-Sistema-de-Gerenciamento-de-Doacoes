@@ -4,6 +4,7 @@ import MenuBar from "../components/menubar/menubar";
 import Navegation from "../components/navegation/navegation";
 import { useRouter } from "next/navigation";
 import styles from "./cadastrodoador.module.css";
+import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
 
 const CadastroDoador = () => {
   const [form, setForm] = useState({
@@ -68,10 +69,14 @@ const CadastroDoador = () => {
         complemento: "",
         pontoReferencia: ""
       });
-      alert("Doador cadastrado com sucesso!");
+      
+      // 🟢 Alerta de sucesso no cadastro (Substituindo o alert)
+      toast.success("Doador cadastrado com sucesso!");
+      
       router.push("/sucesso?tipo=doadores");
     } catch (err) {
       setError(err.message || "Erro ao cadastrar");
+      toast.error("Erro ao cadastrar o doador."); // 🔴 Toast de erro
     } finally {
       setLoading(false);
     }
@@ -134,4 +139,4 @@ const CadastroDoador = () => {
   );
 };
 
-export default CadastroDoador; 
+export default CadastroDoador;

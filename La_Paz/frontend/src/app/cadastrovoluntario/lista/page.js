@@ -5,6 +5,7 @@ import Navigation from "../../components/navegation/navegation";
 import styles from "./lista.module.css";
 import { useRouter } from "next/navigation";
 import modalStyles from "./lista.module.css";
+import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
 
 export default function ListaVoluntarios() {
   const [voluntarios, setVoluntarios] = useState([]);
@@ -35,6 +36,7 @@ export default function ListaVoluntarios() {
     } catch (err) {
       console.error("Erro ao carregar voluntários:", err);
       setError("Não foi possível carregar os voluntários do banco de dados.");
+      toast.error("Erro ao carregar voluntários."); // 🔴 Toast de erro
     } finally {
       setLoading(false);
     }
@@ -58,11 +60,14 @@ export default function ListaVoluntarios() {
         throw new Error(`Falha ao deletar. Status: ${response.status}`);
       }
 
-      alert("Voluntário excluído com sucesso!");
+      // 🟢 Alerta de sucesso na exclusão
+      toast.success("Voluntário excluído com sucesso!");
+      
       carregarVoluntarios(); // Atualiza a tabela buscando os dados novos do PostgreSQL
     } catch (err) {
       console.error(err);
       setError("Erro ao excluir voluntário do sistema.");
+      toast.error("Erro ao excluir voluntário do sistema."); // 🔴 Toast de erro
       setLoading(false);
     }
   };
@@ -99,11 +104,16 @@ export default function ListaVoluntarios() {
     setEditLoading(true);
     setEditError("");
     try {
-      alert("Edição salva com sucesso.");
+      // Aqui entraria a chamada PUT/PATCH para a sua API no futuro
+      
+      // 🟢 Alerta de sucesso na edição
+      toast.success("Edição salva com sucesso!");
+      
       setEditModalOpen(false);
       setEditForm(null);
     } catch (err) {
       setEditError("Erro ao salvar edição");
+      toast.error("Erro ao salvar edição."); // 🔴 Toast de erro
     } finally {
       setEditLoading(false);
     }

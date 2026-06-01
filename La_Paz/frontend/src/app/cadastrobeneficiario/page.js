@@ -4,6 +4,7 @@ import MenuBar from "../components/menubar/menubar";
 import Navegation from "../components/navegation/navegation";
 import { useRouter } from "next/navigation";
 import styles from "./cadastrobeneficiario.module.css";
+import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
 
 const CadastroBeneficiario = () => {
   const [form, setForm] = useState({
@@ -84,10 +85,14 @@ const CadastroBeneficiario = () => {
         complemento: "",
         pontoReferencia: ""
       });
-      alert("Beneficiário cadastrado com sucesso!");
+      
+      // 🟢 Alerta de sucesso no cadastro
+      toast.success("Beneficiário cadastrado com sucesso!");
+      
       router.push("/sucesso?tipo=beneficiarios");
     } catch (err) {
       setError("Erro ao cadastrar beneficiário");
+      toast.error("Erro ao cadastrar beneficiário."); // 🔴 Toast de erro
     } finally {
       setLoading(false);
     }

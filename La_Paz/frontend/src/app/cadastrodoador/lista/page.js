@@ -5,6 +5,7 @@ import Navigation from "../../components/navegation/navegation";
 import styles from "./lista.module.css";
 import { useRouter } from "next/navigation";
 import modalStyles from "./lista.module.css";
+import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
 
 export default function ListaDoadores() {
   const [doadores, setDoadores] = useState([]); // [{id, nomeCompleto, email, telefoneCelular, ...}]
@@ -24,6 +25,7 @@ export default function ListaDoadores() {
       setDoadores(mock);
     } catch (err) {
       setError("Erro ao carregar doadores do mock");
+      toast.error("Erro ao carregar doadores do mock"); // 🔴 Toast de erro (Opcional)
     } finally {
       setLoading(false);
     }
@@ -41,9 +43,12 @@ export default function ListaDoadores() {
       const novos = doadores.filter((d) => d.id !== id);
       setDoadores(novos);
       localStorage.setItem('mockDoadores', JSON.stringify(novos));
-      alert("Doador excluído com sucesso!");
+      
+      // 🟢 Alerta de sucesso na exclusão (Substituindo o alert)
+      toast.success("Doador excluído com sucesso!"); 
     } catch (err) {
       setError("Erro ao excluir doador");
+      toast.error("Erro ao excluir doador"); // 🔴 Toast de erro
     } finally {
       setLoading(false);
     }
@@ -79,8 +84,12 @@ export default function ListaDoadores() {
       localStorage.setItem('mockDoadores', JSON.stringify(novos));
       setEditModalOpen(false);
       setEditForm(null);
+      
+      // 🟢 Alerta de sucesso na edição
+      toast.success("Alterações salvas com sucesso!");
     } catch (err) {
       setEditError("Erro ao salvar edição");
+      toast.error("Erro ao salvar edição"); // 🔴 Toast de erro
     } finally {
       setEditLoading(false);
     }
@@ -211,4 +220,4 @@ export default function ListaDoadores() {
       )}
     </div>
   );
-} 
+}

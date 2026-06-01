@@ -1,10 +1,12 @@
 "use client";
+
 import MenuBar from '../../components/menubar/menubar';
 import Navigation from '../../components/navegation/navegation';
 import styles from '../estoque.module.css';
 import { mockEstoque as mockEstoqueOrig } from '../../../mocks/mockEstoque';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast'; // 🟢 Importação do toast adicionada aqui
 
 export default function EditarProdutoPage() {
   const router = useRouter();
@@ -25,7 +27,10 @@ export default function EditarProdutoPage() {
   function handleSubmit(e) {
     e.preventDefault();
     // Aqui você pode salvar no backend ou atualizar o mock
-    alert('Produto atualizado com sucesso!');
+    
+    // 🟢 Alerta visual disparado aqui
+    toast.success('Produto atualizado com sucesso!');
+    
     router.push('/estoque');
   }
 
@@ -60,4 +65,4 @@ export default function EditarProdutoPage() {
       </div>
     </>
   );
-} 
+}

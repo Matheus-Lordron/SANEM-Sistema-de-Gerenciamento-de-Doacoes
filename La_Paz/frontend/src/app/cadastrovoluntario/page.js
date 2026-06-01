@@ -4,6 +4,7 @@ import MenuBar from "../components/menubar/menubar";
 import Navegation from "../components/navegation/navegation";
 import { useRouter } from "next/navigation";
 import styles from "./cadastrovoluntario.module.css";
+import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
 
 const CadastroVoluntario = () => {
   const [form, setForm] = useState({
@@ -122,12 +123,15 @@ const CadastroVoluntario = () => {
         pontoReferencia: ""
       });
       
-      alert("Voluntário cadastrado com sucesso!");
+      // 🟢 Alerta de sucesso no cadastro (Substituindo o alert)
+      toast.success("Voluntário cadastrado com sucesso!");
+      
       router.push("/cadastrovoluntario/lista");
 
     } catch (err) {
       console.error(err);
       setError("Erro no cadastro: " + err.message);
+      toast.error("Erro no cadastro: " + err.message); // 🔴 Toast de erro com a mensagem da API
     } finally {
       setLoading(false);
     }
