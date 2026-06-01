@@ -1,5 +1,6 @@
 package com.oficina_dev.backend.models.Person;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.oficina_dev.backend.models.Address.Address;
 import com.oficina_dev.backend.models.Cpf.Cpf;
 import com.oficina_dev.backend.models.Email.Email;
@@ -51,12 +52,15 @@ public class Person {
     private Address address;
 
     @OneToOne(mappedBy = "person")
+    @JsonBackReference // 🚀 Protege contra loops caso liste Givers
     private Giver giver;
 
     @OneToOne(mappedBy = "person")
+    @JsonBackReference // 🚀 FECHA O CIRCUITO COM VOLUNTARY! Evita o loop infinito e o erro 500
     private Voluntary voluntary;
 
     @OneToOne(mappedBy = "person")
+    @JsonBackReference // 🚀 Protege contra loops caso liste Receivers
     private Receiver receiver;
 
     public Person(){
@@ -72,11 +76,13 @@ public class Person {
     }
 
     public String getCpf() {
-        return cpf.getCpf();
+        // 🚀 Se o objeto cpf for nulo, retorna "Não informado" em vez de quebrar o sistema
+        return (this.cpf != null) ? this.cpf.getCpf() : "Não informado";
     }
 
     public String getEmail() {
-        return email.getEmail();
+        // 🚀 Se o objeto email for nulo, retorna "Não informado" em vez de quebrar o sistema
+        return (this.email != null) ? this.email.getEmail() : "Não informado";
     }
 
     public void setName(String name) {
@@ -95,20 +101,17 @@ public class Person {
         this.email.setEmail(email);
     }
 
+    // 🚀 Removidos as referências cíclicas do toString para evitar StackOverflow no console do Java
     @Override
     public String toString() {
         return "Person{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
-                ", cpf=" + cpf +
-                ", email=" + email +
+                ", cpf=" + (cpf != null ? cpf.getCpf() : null) +
+                ", email=" + (email != null ? email.getEmail() : null) +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", address=" + address +
-                ", giver=" + giver +
-                ", voluntary=" + voluntary +
-                ", receiver=" + receiver +
                 '}';
     }
 }
