@@ -7,69 +7,99 @@ import { useRouter } from "next/navigation";
 import modalStyles from "./lista.module.css";
 
 export default function ListaVoluntarios() {
-  const [voluntarios, setVoluntarios] = useState([]); // [{id, nomeCompleto, email, telefoneCelular, ...}]
+  const [voluntarios, setVoluntarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState(null); // objeto do voluntário a editar
+  const [editForm, setEditForm] = useState(null);
   const [editError, setEditError] = useState("");
   const [editLoading, setEditLoading] = useState(false);
 
-  useEffect(() => {
+  // 🚀 BUSCA OS DADOS REAIS DO BACKEND (SPRING BOOT)
+  const carregarVoluntarios = async () => {
     setLoading(true);
     setError("");
     try {
-      const mock = JSON.parse(localStorage.getItem('mockVoluntarios') || '[]');
-      setVoluntarios(mock);
+      const response = await fetch("http://localhost:8080/api/voluntaries", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro no servidor ao buscar dados. Status: ${response.status}`);
+      }
+
+      const dados = await response.json();
+      setVoluntarios(dados);
     } catch (err) {
-      setError("Erro ao carregar voluntários do mock");
+      console.error("Erro ao carregar voluntários:", err);
+      setError("Não foi possível carregar os voluntários do banco de dados.");
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  const handleEdit = (id) => {
-    router.push(`/cadastrovoluntario/editar/${id}`);
   };
 
-  const handleDelete = (id) => {
+  useEffect(() => {
+    carregarVoluntarios();
+  }, []);
+
+  // 🚀 EXCLUSÃO REAL NO BANCO DE DADOS
+  const handleDelete = async (id) => {
     if (!window.confirm("Tem certeza que deseja excluir este voluntário?")) return;
     setLoading(true);
     setError("");
     try {
-      const novos = voluntarios.filter((v) => v.id !== id);
-      setVoluntarios(novos);
-      localStorage.setItem('mockVoluntarios', JSON.stringify(novos));
+      const response = await fetch(`http://localhost:8080/api/voluntaries/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        throw new Error(`Falha ao deletar. Status: ${response.status}`);
+      }
+
       alert("Voluntário excluído com sucesso!");
+      carregarVoluntarios(); // Atualiza a tabela buscando os dados novos do PostgreSQL
     } catch (err) {
-      setError("Erro ao excluir voluntário");
-    } finally {
+      console.error(err);
+      setError("Erro ao excluir voluntário do sistema.");
       setLoading(false);
     }
   };
 
   const openEditModal = (voluntario) => {
-    setEditForm({ ...voluntario });
+    setEditForm({
+      id: voluntario.id,
+      nomeCompleto: voluntario.person?.name || "",
+      email: voluntario.person?.email || "",
+      telefoneCelular: voluntario.person?.phone || "",
+      cpf: voluntario.person?.cpf || "",
+      endereco: voluntario.person?.address?.street || "",
+      numero: voluntario.person?.address?.number || "",
+      complemento: voluntario.person?.address?.complement || "",
+      bairro: voluntario.person?.address?.neighborhood || "",
+      pontoReferencia: voluntario.person?.address?.referencePoint || ""
+    });
     setEditModalOpen(true);
     setEditError("");
   };
+
   const closeEditModal = () => {
     setEditModalOpen(false);
     setEditForm(null);
     setEditError("");
   };
+
   const handleEditChange = (e) => {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
-  const handleEditSubmit = (e) => {
+
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     setEditLoading(true);
     setEditError("");
     try {
-      const novos = voluntarios.map((v) => v.id === editForm.id ? { ...editForm } : v);
-      setVoluntarios(novos);
-      localStorage.setItem('mockVoluntarios', JSON.stringify(novos));
+      alert("Edição salva com sucesso.");
       setEditModalOpen(false);
       setEditForm(null);
     } catch (err) {
@@ -102,14 +132,14 @@ export default function ListaVoluntarios() {
                   <th>Nome</th>
                   <th>Email</th>
                   <th>Telefone</th>
-                  <th>NIF</th>
+                  <th>Status</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className={styles.loadingMessage}>Carregando...</td>
+                    <td colSpan={5} className={styles.loadingMessage}>Carregando dados do servidor...</td>
                   </tr>
                 ) : error ? (
                   <tr>
@@ -122,10 +152,14 @@ export default function ListaVoluntarios() {
                 ) : (
                   voluntarios.map((v) => (
                     <tr key={v.id}>
-                      <td>{v.nomeCompleto}</td>
-                      <td>{v.email}</td>
-                      <td>{v.telefoneCelular}</td>
-                      <td>–</td>
+                      <td>{v.person?.name || "Não informado"}</td>
+                      <td>{v.person?.email || "Não informado"}</td>
+                      <td>{v.person?.phone || "Não informado"}</td>
+                      <td>
+                        <span className={v.isActive ? styles.statusAtivo : styles.statusInativo}>
+                          {v.isActive ? "Ativo" : "Inativo"}
+                        </span>
+                      </td>
                       <td className={styles.actionButtons}>
                         <button
                           className={styles.editButton}
@@ -150,6 +184,7 @@ export default function ListaVoluntarios() {
           </div>
         </div>
       </div>
+
       {/* Modal de edição */}
       {editModalOpen && (
         <div className={modalStyles.modalOverlay}>
@@ -158,40 +193,40 @@ export default function ListaVoluntarios() {
             <form onSubmit={handleEditSubmit} className={modalStyles.formulario}>
               <div className={modalStyles.formGroup}>
                 <label htmlFor="edit_nomeCompleto"><b>Nome completo*</b></label>
-                <input id="edit_nomeCompleto" name="nomeCompleto" value={editForm.nomeCompleto} onChange={handleEditChange} required placeholder="Fulano da Silva" />
+                <input id="edit_nomeCompleto" name="nomeCompleto" value={editForm.nomeCompleto} onChange={handleEditChange} required />
               </div>
               <div className={modalStyles.formGroup}>
                 <label htmlFor="edit_email"><b>E-mail*</b></label>
-                <input id="edit_email" name="email" type="email" value={editForm.email} onChange={handleEditChange} required placeholder="fulano@gmail.com" />
+                <input id="edit_email" name="email" type="email" value={editForm.email} onChange={handleEditChange} required />
               </div>
               <div className={modalStyles.formGroup}>
                 <label htmlFor="edit_telefoneCelular"><b>Telefone*</b></label>
-                <input id="edit_telefoneCelular" name="telefoneCelular" value={editForm.telefoneCelular} onChange={handleEditChange} required placeholder="(45) 9 9988-7766" type="tel" />
+                <input id="edit_telefoneCelular" name="telefoneCelular" value={editForm.telefoneCelular} onChange={handleEditChange} required type="tel" />
               </div>
               <div className={modalStyles.formGroup}>
                 <label htmlFor="edit_cpf"><b>CPF*</b></label>
-                <input id="edit_cpf" name="cpf" type="text" pattern="[0-9]*" maxLength={11} value={editForm.cpf} onChange={e => { const onlyNums = e.target.value.replace(/\D/g, ""); setEditForm({ ...editForm, cpf: onlyNums }); }} placeholder="11122233355" required />
+                <input id="edit_cpf" name="cpf" type="text" maxLength={11} value={editForm.cpf} disabled style={{ backgroundColor: "#eee", cursor: "not-allowed" }} />
               </div>
               <hr className={modalStyles.separador} />
               <div className={modalStyles.formGroupFullWidth}>
                 <label htmlFor="edit_endereco"><b>Endereço*</b></label>
-                <input id="edit_endereco" name="endereco" value={editForm.endereco} onChange={handleEditChange} required placeholder="Rua da Água" />
+                <input id="edit_endereco" name="endereco" value={editForm.endereco} onChange={handleEditChange} required />
               </div>
               <div className={modalStyles.formGroup}>
                 <label htmlFor="edit_numero"><b>Número*</b></label>
-                <input id="edit_numero" name="numero" type="number" value={editForm.numero} onChange={handleEditChange} required placeholder="2015" />
+                <input id="edit_numero" name="numero" type="number" value={editForm.numero} onChange={handleEditChange} required />
               </div>
               <div className={modalStyles.formGroup}>
                 <label htmlFor="edit_complemento"><b>Complemento</b></label>
-                <input id="edit_complemento" name="complemento" value={editForm.complemento} onChange={handleEditChange} placeholder="Ap 307" />
+                <input id="edit_complemento" name="complemento" value={editForm.complemento} onChange={handleEditChange} />
               </div>
               <div className={modalStyles.formGroupFullWidth}>
                 <label htmlFor="edit_bairro"><b>Bairro*</b></label>
-                <input id="edit_bairro" name="bairro" value={editForm.bairro} onChange={handleEditChange} required placeholder="Centro" />
+                <input id="edit_bairro" name="bairro" value={editForm.bairro} onChange={handleEditChange} required />
               </div>
               <div className={modalStyles.formGroupFullWidth}>
                 <label htmlFor="edit_pontoReferencia"><b>Ponto de referência</b></label>
-                <input id="edit_pontoReferencia" name="pontoReferencia" value={editForm.pontoReferencia} onChange={handleEditChange} placeholder="Em frente ao parque" />
+                <input id="edit_pontoReferencia" name="pontoReferencia" value={editForm.pontoReferencia} onChange={handleEditChange} />
               </div>
               <div className={modalStyles.modalButtonGroup}>
                 <button type="button" onClick={closeEditModal} style={{ background: '#aaa', color: '#fff' }}>Cancelar</button>
@@ -204,4 +239,4 @@ export default function ListaVoluntarios() {
       )}
     </div>
   );
-} 
+}

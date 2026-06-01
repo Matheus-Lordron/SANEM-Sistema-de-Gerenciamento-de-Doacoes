@@ -3,16 +3,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Navigation from '../components/navegation/navegation';
 import styles from './home.module.css';
-import { FaHome, FaUserPlus, FaBoxes, FaHandHoldingHeart, FaUsers, FaUserFriends, FaChartBar, FaCog } from 'react-icons/fa';
+import { FaHome, FaBoxes, FaHandHoldingHeart, FaUsers, FaUserFriends, FaChartBar, FaCog } from 'react-icons/fa';
 
 export default function Home() {
-  // Simulação: troque para true/false para testar
   const hasNotification = true;
 
-  // Opções de navegação para o grid (removido Usuários)
   const navOptions = [
     { href: '/home', label: 'Home', icon: <FaHome /> },
-    { href: '/cadastrooption', label: 'Cadastro', icon: <FaUserPlus /> },
     { href: '/estoque', label: 'Estoque', icon: <FaBoxes /> },
     { href: '/cadastrodoador/lista', label: 'Doadores', icon: <FaHandHoldingHeart /> },
     { href: '/cadastrobeneficiario/lista', label: 'Beneficiários', icon: <FaUsers /> },
@@ -51,4 +48,4 @@ export default function Home() {
       </main>
     </div>
   );
-} 
+}

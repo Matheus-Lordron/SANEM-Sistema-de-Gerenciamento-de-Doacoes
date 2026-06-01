@@ -15,6 +15,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Se já houver um token válido e antigo salvo, pula para a home
   useEffect(() => {
     if (getStoredToken()) {
       router.replace("/home");
@@ -40,20 +41,24 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const { token } = await login(form);
+      const response = await login(form);
+      const token = response?.token;
 
+      // 🚀 CORREÇÃO CRUCIAL: Se não veio token, barra o usuário aqui!
       if (!token) {
-        console.warn("A resposta de login nao trouxe um token reconhecido.");
+        setError("Credenciais inválidas. Não foi possível gerar o acesso.");
+        setIsSubmitting(false);
+        return; // 🔥 Para a execução e não deixa rodar o router.push
       }
 
       router.push("/home");
     } catch (requestError) {
       if (requestError.status === 401 || requestError.status === 403) {
-        setError("Usuario ou senha incorretos.");
+        setError("Usuário ou senha incorretos.");
       } else if (requestError.status === 404) {
-        setError("Endpoint de login nao encontrado em /api/auth/login.");
+        setError("Endpoint de login não encontrado em /api/auth/login.");
       } else {
-        setError(requestError.message || "Servidor indisponivel no momento.");
+        setError(requestError.message || "Servidor indisponível no momento.");
       }
     } finally {
       setIsSubmitting(false);
@@ -102,7 +107,10 @@ export default function Login() {
             {isSubmitting ? "Entrando..." : "Login"}
           </button>
         </form>
+        
+        {/* Exibe a mensagem vermelha na tela perfeitamente */}
         {error && <div className={styles.errorMsg}>{error}</div>}
+        
         <a href="#" className={styles.forgot}>
           Esqueci minha senha
         </a>
