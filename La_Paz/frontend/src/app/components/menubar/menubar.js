@@ -1,7 +1,19 @@
+"use client"; // 🚀 Necessário no Next.js para usar eventos (onClick) e Hooks (useRouter)
+
 import styles from './menuBar.module.css';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'; // 🚀 Importado o roteador do Next.js
 
 export default function MenuBar({ hasNotification }) {
+  const router = useRouter(); // 🚀 Inicializa o roteador
+
+  // 🚪 Função para limpar os tokens e sair do sistema
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
+    router.push("/"); // 🚀 Mude para "/login" se a sua rota de login não for a "/"
+  };
+
   return (
     <header className={styles.menuBar}>
       <div className={styles.rightSection}>
@@ -10,9 +22,17 @@ export default function MenuBar({ hasNotification }) {
           <span className={styles.userName}>Fulano da Silva</span>
           <span className={styles.arrowDown}>▼</span>
         </div>
+        
         <div className={styles.iconWrapper} style={{ position: 'relative' }}>
         </div>
-        <div className={styles.iconWrapper}>
+        
+        {/* 🚀 Adicionado o onClick e o cursor para mostrar que é clicável */}
+        <div 
+          className={styles.iconWrapper} 
+          onClick={handleLogout} 
+          style={{ cursor: 'pointer' }} 
+          title="Sair do sistema"
+        >
           <LogoutIcon />
         </div>
       </div>

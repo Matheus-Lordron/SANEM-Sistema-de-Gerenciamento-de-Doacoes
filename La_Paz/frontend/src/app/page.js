@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react"; // 💡 Removi o useEffect daqui
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import { getStoredToken, login } from "../lib/api";
+import { login } from "../lib/api"; // 💡 Se não for usar o getStoredToken aqui, pode remover o import dele
 
 export default function Login() {
   const router = useRouter();
@@ -15,24 +15,16 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Se já houver um token válido e antigo salvo, pula para a home
-  useEffect(() => {
-    if (getStoredToken()) {
-      router.replace("/home");
-    }
-  }, [router]);
+  // ❌ O bloco do "useEffect" que estava aqui foi removido!
+  // Agora o Next.js nunca vai pular essa tela sozinho.
 
   function handleChange(event) {
     const { name, value } = event.target;
-
     setForm((currentForm) => ({
       ...currentForm,
       [name]: value,
     }));
-
-    if (error) {
-      setError("");
-    }
+    if (error) setError("");
   }
 
   async function handleSubmit(event) {
@@ -44,11 +36,10 @@ export default function Login() {
       const response = await login(form);
       const token = response?.token;
 
-      // 🚀 CORREÇÃO CRUCIAL: Se não veio token, barra o usuário aqui!
       if (!token) {
         setError("Credenciais inválidas. Não foi possível gerar o acesso.");
         setIsSubmitting(false);
-        return; // 🔥 Para a execução e não deixa rodar o router.push
+        return;
       }
 
       router.push("/home");
@@ -69,13 +60,7 @@ export default function Login() {
     <div className={styles.page}>
       <div className={styles.loginBox}>
         <div className={styles.logoContainer}>
-          <Image
-            src="/logo-sanem.svg"
-            alt="Logo SANEM"
-            width={120}
-            height={120}
-            className={styles.logo}
-          />
+          <Image src="/logo-sanem.svg" alt="Logo SANEM" width={120} height={120} className={styles.logo} />
         </div>
         <h2 className={styles.loginTitle}>Login</h2>
         <form className={styles.loginForm} onSubmit={handleSubmit}>
@@ -108,12 +93,9 @@ export default function Login() {
           </button>
         </form>
         
-        {/* Exibe a mensagem vermelha na tela perfeitamente */}
         {error && <div className={styles.errorMsg}>{error}</div>}
         
-        <a href="#" className={styles.forgot}>
-          Esqueci minha senha
-        </a>
+        <a href="#" className={styles.forgot}>Esqueci minha senha</a>
       </div>
     </div>
   );

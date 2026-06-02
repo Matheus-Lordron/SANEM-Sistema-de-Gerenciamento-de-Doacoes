@@ -3,6 +3,8 @@ package com.oficina_dev.backend.configs;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // 🔥 IMPORT ADICIONADO
+import org.springframework.security.crypto.password.PasswordEncoder;     // 🔥 IMPORT ADICIONADO
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -19,5 +21,11 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable());
 
         return http.build();
+    }
+
+    // 🚀 ADICIONE ESTE BLOCO AQUI EMBAIXO:
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
