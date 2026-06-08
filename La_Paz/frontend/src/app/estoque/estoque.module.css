@@ -16,7 +16,8 @@
 .titulo {
   font-size: 2.2rem;
   font-weight: 800;
-  margin-bottom: 24px;
+  margin-top: 10px; /* Novo: respiro extra do topo */
+  margin-bottom: 48px; /* Modificado: o dobro de espaço para remover a poluição visual */
   color: var(--color-primary);
   letter-spacing: 1px;
   text-align: center;
@@ -25,7 +26,7 @@
 .tabela {
   width: 100%;
   max-width: 1100px;
-  margin: 12px auto 0 auto;
+  margin: 0 auto; /* Removido o margin-top daqui, pois o espaçamento agora vem da Toolbar */
   border-collapse: separate;
   border-spacing: 0 10px;
   background: var(--color-bg-alt);
@@ -57,9 +58,11 @@
   transition: background 0.2s;
   border-radius: 12px;
 }
+
 .tabela tbody tr:nth-child(even) {
   background: #f5f6fa;
 }
+
 .tabela tbody tr:hover {
   background: #e9eafd;
 }
@@ -68,6 +71,7 @@
   border-top: none;
   border-bottom: 1.5px solid var(--color-border-light);
 }
+
 .tabela tr:last-child td {
   border-bottom: none;
 }
@@ -88,6 +92,7 @@
   background: var(--color-primary);
   color: #fff;
 }
+
 .btnAdicionar:hover {
   background: var(--color-primary-dark);
 }
@@ -97,6 +102,7 @@
   color: var(--color-primary);
   border: 1.5px solid var(--color-primary);
 }
+
 .btnEditar:hover {
   background: #d0d8f6;
 }
@@ -106,6 +112,7 @@
   color: var(--color-error);
   border: 1.5px solid var(--color-error);
 }
+
 .btnExcluir:hover {
   background: #ffd6d6;
 }
@@ -137,38 +144,6 @@
   border: 1.5px solid var(--color-border-light);
 }
 
-.formulario {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.formLabel {
-  font-weight: 600;
-  color: var(--color-primary);
-  margin-bottom: 4px;
-}
-
-.formInput {
-  padding: 12px 14px;
-  border: 1.5px solid var(--color-border-light);
-  border-radius: 8px;
-  font-size: 1.05rem;
-  background: #fff;
-  color: #222;
-  transition: border 0.2s;
-}
-.formInput:focus {
-  border: 1.5px solid var(--color-primary);
-}
-
-.modalBotoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-top: 16px;
-}
-
 .actionsHeader {
   width: 100%;
   max-width: 1100px;
@@ -176,4 +151,78 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-} 
+}
+
+/* =========================================
+   REFATORAÇÃO DO FORMULÁRIO (ALINHAMENTO)
+========================================= */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px rgba(25,118,210,0.10);
+  border: 1.5px solid var(--color-border-light);
+}
+
+.formLabel {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--color-border-light);
+  border-radius: 8px;
+  font-size: 1.05rem;
+  background: #fff;
+  color: #222;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.formInput:focus {
+  border: 1.5px solid var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+}
+
+.modalBotoes {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+/* =========================================
+   CAMPO DE PESQUISA (NOVO)
+========================================= */
+
+.searchInput {
+  padding: 10px 16px;
+  border: 1.5px solid var(--color-border-light);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  min-width: 250px;
+  transition: all 0.2s ease;
+  color: #222;
+}
+
+.searchInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+}
+
+.searchInput::placeholder {
+  color: #999;
+}

@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './navegation.module.css';
-import { FaHome, FaUserPlus, FaBoxes, FaHandHoldingHeart, FaUsers, FaUserFriends, FaChartBar, FaCog, FaUser, FaQuestionCircle } from 'react-icons/fa';
+import { FaHome, FaBoxes, FaHandHoldingHeart, FaUsers, FaUserFriends, FaChartBar, FaCog, FaUser, FaQuestionCircle } from 'react-icons/fa';
 
 const menuIcons = {
     Home: <FaHome />,
     Dashboard: <FaChartBar />,
-    Cadastro: <FaUserPlus />,
     Estoque: <FaBoxes />,
     Doadores: <FaHandHoldingHeart />,
     Beneficiários: <FaUsers />,
@@ -28,7 +27,6 @@ export default function Navigation() {
             <nav className={styles.menuSection}>
                 <Link href="/home" className={styles.menuItem}>{menuIcons.Home} Home</Link>
                 <Link href="/dashboard" className={styles.menuItem}>{menuIcons.Dashboard} Dashboard</Link>
-                <Link href="/cadastrooption" className={styles.menuItem}>{menuIcons.Cadastro} Cadastro</Link>
                 <Link href="/estoque" className={styles.menuItem}>{menuIcons.Estoque} Estoque</Link>
                 <Link href="/cadastrodoador/lista" className={styles.menuItem}>{menuIcons.Doadores} Doadores</Link>
                 <Link href="/cadastrobeneficiario/lista" className={styles.menuItem}>{menuIcons.Beneficiários} Beneficiários</Link>

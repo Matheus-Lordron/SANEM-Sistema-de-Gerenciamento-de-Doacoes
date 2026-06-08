@@ -1,53 +1,59 @@
 "use client";
+
 import MenuBar from "../components/menubar/menubar";
 import Navigation from "../components/navegation/navegation";
 import { mockEstoque as mockEstoqueOrig } from "../../mocks/mockEstoque";
 import styles from "./estoque.module.css";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
+import toast from "react-hot-toast";
 
 const STORAGE_KEY = "mockEstoque";
+
+function getEstoqueStatus(quantidade) {
+  if (quantidade <= 2) return { label: "Crítico", color: "#c0392b", bg: "#fdecea", emoji: "🔴" };
+  if (quantidade <= 4) return { label: "Alerta", color: "#e67e22", bg: "#fef3e2", emoji: "🟠" };
+  if (quantidade <= 7) return { label: "Atenção", color: "#f1c40f", bg: "#fefde7", emoji: "🟡" };
+  return { label: "OK", color: "#27ae60", bg: "#eafaf1", emoji: "🟢" };
+}
 
 export default function EstoquePage() {
   const [mockEstoque, setMockEstoque] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  const [novoProduto, setNovoProduto] = useState({
-    nome: "",
-    categoria: "",
-    tamanho: "",
-    quantidade: "",
-  });
+  const [novoProduto, setNovoProduto] = useState({ nome: "", categoria: "", tamanho: "", quantidade: "" });
   const [editId, setEditId] = useState(null);
-  const [editProduto, setEditProduto] = useState({
-    nome: "",
-    categoria: "",
-    tamanho: "",
-    quantidade: "",
-  });
+  const [editProduto, setEditProduto] = useState({ nome: "", categoria: "", tamanho: "", quantidade: "" });
+  const [filtroCritico, setFiltroCritico] = useState(false);
+  
+  const [searchTerm, setSearchTerm] = useState("");
+  
   const router = useRouter();
   const hasNotification = false;
 
-  // 🔹 Carrega do localStorage ou, se não tiver, inicializa com o mock do arquivo
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
           setMockEstoque(parsed);
+
+          const criticos = parsed.filter((i) => i.quantidade <= 2);
+          if (criticos.length > 0) {
+            toast.error(
+              `⚠️ ${criticos.length} produto(s) com estoque crítico!`,
+              { duration: 5000 }
+            );
+          }
           return;
         }
       }
     } catch (e) {
       console.error("Erro lendo estoque do localStorage:", e);
     }
-
-    // fallback: mock original
     setMockEstoque(mockEstoqueOrig);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(mockEstoqueOrig));
   }, []);
@@ -69,9 +75,14 @@ export default function EstoquePage() {
     salvarNoStorage(updated);
     setNovoProduto({ nome: "", categoria: "", tamanho: "", quantidade: "" });
     setShowAddModal(false);
-    
-    // 🟢 Alerta de sucesso ao adicionar
     toast.success("Produto adicionado com sucesso!");
+
+    const status = getEstoqueStatus(novo.quantidade);
+    if (status.label !== "OK") {
+      toast(`${status.emoji} Produto adicionado com estoque ${status.label.toLowerCase()}!`, {
+        duration: 4000,
+      });
+    }
   }
 
   function handleDeleteProduto() {
@@ -80,8 +91,6 @@ export default function EstoquePage() {
     salvarNoStorage(updated);
     setShowDeleteModal(false);
     setItemToDelete(null);
-
-    // 🟢 Alerta de sucesso ao excluir
     toast.success("Produto excluído com sucesso!");
   }
 
@@ -115,31 +124,34 @@ export default function EstoquePage() {
     setMockEstoque(updated);
     salvarNoStorage(updated);
     setEditId(null);
-    setEditProduto({
-      nome: "",
-      categoria: "",
-      tamanho: "",
-      quantidade: "",
-    });
-
-    // 🟢 Alerta de sucesso ao salvar edição inline
+    setEditProduto({ nome: "", categoria: "", tamanho: "", quantidade: "" });
     toast.success("Produto atualizado com sucesso!");
+
+    const status = getEstoqueStatus(editProduto.quantidade);
+    if (status.label !== "OK") {
+      toast(`${status.emoji} Estoque ${status.label.toLowerCase()} após atualização!`, {
+        duration: 4000,
+      });
+    }
   }
 
   function cancelEditProduto() {
     setEditId(null);
-    setEditProduto({
-      nome: "",
-      categoria: "",
-      tamanho: "",
-      quantidade: "",
-    });
+    setEditProduto({ nome: "", categoria: "", tamanho: "", quantidade: "" });
   }
 
-  // (essa função do router vc nem está usando, mas deixei se quiser telas futuras)
-  function handleEditProduto(item) {
-    router.push(`/estoque/editar/${item.id}`);
-  }
+  const listaExibida = mockEstoque.filter((item) => {
+    const matchCritico = filtroCritico ? item.quantidade <= 4 : true;
+    const searchLower = searchTerm.toLowerCase();
+    const matchSearch = 
+      item.nome.toLowerCase().includes(searchLower) || 
+      item.categoria.toLowerCase().includes(searchLower);
+      
+    return matchCritico && matchSearch;
+  });
+
+  const totalCriticos = mockEstoque.filter((i) => i.quantidade <= 2).length;
+  const totalAlerta = mockEstoque.filter((i) => i.quantidade > 2 && i.quantidade <= 4).length;
 
   return (
     <>
@@ -148,21 +160,92 @@ export default function EstoquePage() {
         <MenuBar hasNotification={hasNotification} />
         <main className={styles.main}>
           <h1 className={styles.titulo}>Controle de Estoque</h1>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: 24,
-            }}
-          >
-            <button
-              className={`${styles.btn} ${styles.btnAdicionar}`}
-              onClick={() => setShowAddModal(true)}
-            >
-              + Adicionar Produto
-            </button>
+
+          {/* TOOLBAR DA TABELA */}
+          <div style={{ 
+            width: "100%", 
+            maxWidth: "1100px", 
+            margin: "0 auto 24px auto", /* Modificado: Aumentado para 24px para criar simetria com o título */
+            display: "flex", 
+            justifyContent: "space-between", 
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "16px"
+          }}>
+            
+            {/* Lado Esquerdo: Alertas de Estoque */}
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {totalCriticos > 0 && (
+                <div style={{
+                  background: "#fdecea",
+                  border: "1.5px solid #c0392b",
+                  borderRadius: 10,
+                  padding: "8px 16px",
+                  color: "#c0392b",
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}>
+                  🔴 {totalCriticos} produto(s) com estoque crítico
+                </div>
+              )}
+              {totalAlerta > 0 && (
+                <div style={{
+                  background: "#fef3e2",
+                  border: "1.5px solid #e67e22",
+                  borderRadius: 10,
+                  padding: "8px 16px",
+                  color: "#e67e22",
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}>
+                  🟠 {totalAlerta} produto(s) em alerta
+                </div>
+              )}
+            </div>
+
+            {/* Lado Direito: Busca e Ações */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              
+              <input
+                type="text"
+                placeholder="Buscar por nome ou categoria..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
+
+              <button
+                className={`${styles.btn}`}
+                onClick={() => setFiltroCritico((v) => !v)}
+                style={{
+                  background: filtroCritico ? "#c0392b" : "#ffffff",
+                  color: filtroCritico ? "#fff" : "#c0392b",
+                  border: "1.5px solid #c0392b",
+                  fontWeight: 700,
+                  padding: "10px 20px",
+                  fontSize: "0.95rem",
+                  margin: 0,
+                }}
+              >
+                {filtroCritico ? "Ver Todos" : "🔴 Ver Críticos"}
+              </button>
+
+              <button
+                className={`${styles.btn} ${styles.btnAdicionar}`}
+                onClick={() => setShowAddModal(true)}
+                style={{ margin: 0 }}
+              >
+                + Adicionar Produto
+              </button>
+            </div>
           </div>
+
           <table className={styles.tabela}>
             <thead>
               <tr>
@@ -171,88 +254,67 @@ export default function EstoquePage() {
                 <th>Categoria</th>
                 <th>Tamanho</th>
                 <th>Quantidade</th>
+                <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {mockEstoque.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  {editId === item.id ? (
-                    <>
-                      <td>
-                        <input
-                          className={styles.formInput}
-                          name="nome"
-                          value={editProduto.nome}
-                          onChange={handleEditChange}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          className={styles.formInput}
-                          name="categoria"
-                          value={editProduto.categoria}
-                          onChange={handleEditChange}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          className={styles.formInput}
-                          name="tamanho"
-                          value={editProduto.tamanho}
-                          onChange={handleEditChange}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          className={styles.formInput}
-                          name="quantidade"
-                          type="number"
-                          min={1}
-                          value={editProduto.quantidade}
-                          onChange={handleEditChange}
-                        />
-                      </td>
-                      <td>
-                        <button
-                          className={`${styles.btn} ${styles.btnAdicionar}`}
-                          onClick={() => saveEditProduto(item.id)}
-                        >
-                          Salvar
-                        </button>
-                        <button
-                          className={`${styles.btn} ${styles.btnExcluir}`}
-                          onClick={cancelEditProduto}
-                        >
-                          Cancelar
-                        </button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td>{item.nome}</td>
-                      <td>{item.categoria}</td>
-                      <td>{item.tamanho}</td>
-                      <td>{item.quantidade}</td>
-                      <td>
-                        <button
-                          className={`${styles.btn} ${styles.btnEditar}`}
-                          onClick={() => startEditProduto(item)}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          className={`${styles.btn} ${styles.btnExcluir}`}
-                          onClick={() => openDeleteModal(item)}
-                        >
-                          Excluir
-                        </button>
-                      </td>
-                    </>
-                  )}
+              {listaExibida.length === 0 ? (
+                <tr>
+                  <td colSpan="7" style={{ padding: "30px", color: "#666", fontStyle: "italic" }}>
+                    Nenhum produto encontrado com os filtros atuais.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                listaExibida.map((item) => {
+                  const status = getEstoqueStatus(item.quantidade);
+                  return (
+                    <tr key={item.id} style={
+                      item.quantidade <= 2 ? { background: "#fff5f5" } : {}
+                    }>
+                      <td>{item.id}</td>
+                      {editId === item.id ? (
+                        <>
+                          <td><input className={styles.formInput} name="nome" value={editProduto.nome} onChange={handleEditChange} /></td>
+                          <td><input className={styles.formInput} name="categoria" value={editProduto.categoria} onChange={handleEditChange} /></td>
+                          <td><input className={styles.formInput} name="tamanho" value={editProduto.tamanho} onChange={handleEditChange} /></td>
+                          <td><input className={styles.formInput} name="quantidade" type="number" min={0} value={editProduto.quantidade} onChange={handleEditChange} /></td>
+                          <td>—</td>
+                          <td>
+                            <button className={`${styles.btn} ${styles.btnAdicionar}`} onClick={() => saveEditProduto(item.id)}>Salvar</button>
+                            <button className={`${styles.btn} ${styles.btnExcluir}`} onClick={cancelEditProduto}>Cancelar</button>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td>{item.nome}</td>
+                          <td>{item.categoria}</td>
+                          <td>{item.tamanho}</td>
+                          <td>{item.quantidade}</td>
+                          <td>
+                            <span style={{
+                              background: status.bg,
+                              color: status.color,
+                              border: `1.5px solid ${status.color}`,
+                              borderRadius: 20,
+                              padding: "4px 12px",
+                              fontWeight: 700,
+                              fontSize: "0.82rem",
+                              whiteSpace: "nowrap",
+                            }}>
+                              {status.emoji} {status.label}
+                            </span>
+                          </td>
+                          <td>
+                            <button className={`${styles.btn} ${styles.btnEditar}`} onClick={() => startEditProduto(item)}>Editar</button>
+                            <button className={`${styles.btn} ${styles.btnExcluir}`} onClick={() => openDeleteModal(item)}>Excluir</button>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
 
@@ -260,82 +322,23 @@ export default function EstoquePage() {
           {showAddModal && (
             <div className={styles.modalOverlay}>
               <div className={styles.modal}>
-                <h2
-                  className={styles.titulo}
-                  style={{ fontSize: "1.3rem", marginBottom: 16 }}
-                >
-                  Adicionar Produto
-                </h2>
+                <h2 className={styles.titulo} style={{ fontSize: "1.3rem", marginBottom: 20 }}>Adicionar Produto</h2>
                 <form className={styles.formulario} onSubmit={handleAddProduto}>
-                  <label className={styles.formLabel}>
-                    Nome
-                    <input
-                      className={styles.formInput}
-                      required
-                      value={novoProduto.nome}
-                      onChange={(e) =>
-                        setNovoProduto({ ...novoProduto, nome: e.target.value })
-                      }
-                    />
+                  <label className={styles.formLabel}>Nome
+                    <input className={styles.formInput} required value={novoProduto.nome} onChange={(e) => setNovoProduto({ ...novoProduto, nome: e.target.value })} />
                   </label>
-                  <label className={styles.formLabel}>
-                    Categoria
-                    <input
-                      className={styles.formInput}
-                      required
-                      value={novoProduto.categoria}
-                      onChange={(e) =>
-                        setNovoProduto({
-                          ...novoProduto,
-                          categoria: e.target.value,
-                        })
-                      }
-                    />
+                  <label className={styles.formLabel}>Categoria
+                    <input className={styles.formInput} required value={novoProduto.categoria} onChange={(e) => setNovoProduto({ ...novoProduto, categoria: e.target.value })} />
                   </label>
-                  <label className={styles.formLabel}>
-                    Tamanho
-                    <input
-                      className={styles.formInput}
-                      required
-                      value={novoProduto.tamanho}
-                      onChange={(e) =>
-                        setNovoProduto({
-                          ...novoProduto,
-                          tamanho: e.target.value,
-                        })
-                      }
-                    />
+                  <label className={styles.formLabel}>Tamanho
+                    <input className={styles.formInput} required value={novoProduto.tamanho} onChange={(e) => setNovoProduto({ ...novoProduto, tamanho: e.target.value })} />
                   </label>
-                  <label className={styles.formLabel}>
-                    Quantidade
-                    <input
-                      className={styles.formInput}
-                      required
-                      type="number"
-                      min={1}
-                      value={novoProduto.quantidade}
-                      onChange={(e) =>
-                        setNovoProduto({
-                          ...novoProduto,
-                          quantidade: e.target.value,
-                        })
-                      }
-                    />
+                  <label className={styles.formLabel}>Quantidade
+                    <input className={styles.formInput} required type="number" min={0} value={novoProduto.quantidade} onChange={(e) => setNovoProduto({ ...novoProduto, quantidade: e.target.value })} />
                   </label>
                   <div className={styles.modalBotoes}>
-                    <button
-                      type="button"
-                      className={`${styles.btn} ${styles.btnExcluir}`}
-                      onClick={() => setShowAddModal(false)}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      className={`${styles.btn} ${styles.btnAdicionar}`}
-                    >
-                      Adicionar
-                    </button>
+                    <button type="button" className={`${styles.btn} ${styles.btnExcluir}`} onClick={() => setShowAddModal(false)}>Cancelar</button>
+                    <button type="submit" className={`${styles.btn} ${styles.btnAdicionar}`}>Adicionar</button>
                   </div>
                 </form>
               </div>
@@ -346,29 +349,11 @@ export default function EstoquePage() {
           {showDeleteModal && (
             <div className={styles.modalOverlay}>
               <div className={styles.modal}>
-                <h2
-                  className={styles.titulo}
-                  style={{ fontSize: "1.3rem", marginBottom: 16 }}
-                >
-                  Confirmar Exclusão
-                </h2>
-                <p>
-                  Tem certeza que deseja excluir o produto{" "}
-                  <b>{itemToDelete?.nome}</b>?
-                </p>
+                <h2 className={styles.titulo} style={{ fontSize: "1.3rem", marginBottom: 16 }}>Confirmar Exclusão</h2>
+                <p style={{ textAlign: 'center', marginBottom: '20px' }}>Tem certeza que deseja excluir o produto <br/><b>{itemToDelete?.nome}</b>?</p>
                 <div className={styles.modalBotoes}>
-                  <button
-                    className={`${styles.btn} ${styles.btnExcluir}`}
-                    onClick={() => setShowDeleteModal(false)}
-                  >
-                    Não
-                  </button>
-                  <button
-                    className={`${styles.btn} ${styles.btnAdicionar}`}
-                    onClick={handleDeleteProduto}
-                  >
-                    Sim
-                  </button>
+                  <button className={`${styles.btn} ${styles.btnExcluir}`} onClick={() => setShowDeleteModal(false)}>Não</button>
+                  <button className={`${styles.btn} ${styles.btnAdicionar}`} onClick={handleDeleteProduto}>Sim, excluir</button>
                 </div>
               </div>
             </div>

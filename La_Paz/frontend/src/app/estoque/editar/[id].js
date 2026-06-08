@@ -6,7 +6,7 @@ import styles from '../estoque.module.css';
 import { mockEstoque as mockEstoqueOrig } from '../../../mocks/mockEstoque';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast'; // 🟢 Importação do toast adicionada aqui
+import toast from 'react-hot-toast';
 
 export default function EditarProdutoPage() {
   const router = useRouter();
@@ -28,9 +28,7 @@ export default function EditarProdutoPage() {
     e.preventDefault();
     // Aqui você pode salvar no backend ou atualizar o mock
     
-    // 🟢 Alerta visual disparado aqui
     toast.success('Produto atualizado com sucesso!');
-    
     router.push('/estoque');
   }
 
@@ -43,23 +41,67 @@ export default function EditarProdutoPage() {
         <MenuBar hasNotification={hasNotification} />
         <main className={styles.main}>
           <h1 className={styles.titulo}>Editar Produto</h1>
-          <form className={styles.formulario} onSubmit={handleSubmit} style={{ maxWidth: 400, width: '100%' }}>
-            <label className={styles.formLabel}>Nome
-              <input className={styles.formInput} required value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} />
+          
+          <form className={styles.formulario} onSubmit={handleSubmit} style={{ maxWidth: 500, width: '100%' }}>
+            
+            <label className={styles.formLabel}>
+              Nome
+              <input 
+                className={styles.formInput} 
+                required 
+                value={form.nome} 
+                onChange={e => setForm({ ...form, nome: e.target.value })} 
+              />
             </label>
-            <label className={styles.formLabel}>Categoria
-              <input className={styles.formInput} required value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} />
+            
+            <label className={styles.formLabel}>
+              Categoria
+              <input 
+                className={styles.formInput} 
+                required 
+                value={form.categoria} 
+                onChange={e => setForm({ ...form, categoria: e.target.value })} 
+              />
             </label>
-            <label className={styles.formLabel}>Tamanho
-              <input className={styles.formInput} required value={form.tamanho} onChange={e => setForm({ ...form, tamanho: e.target.value })} />
+            
+            <label className={styles.formLabel}>
+              Tamanho
+              <input 
+                className={styles.formInput} 
+                required 
+                value={form.tamanho} 
+                onChange={e => setForm({ ...form, tamanho: e.target.value })} 
+              />
             </label>
-            <label className={styles.formLabel}>Quantidade
-              <input className={styles.formInput} required type="number" min={1} value={form.quantidade} onChange={e => setForm({ ...form, quantidade: e.target.value })} />
+            
+            <label className={styles.formLabel}>
+              Quantidade
+              <input 
+                className={styles.formInput} 
+                required 
+                type="number" 
+                min={1} 
+                value={form.quantidade} 
+                onChange={e => setForm({ ...form, quantidade: e.target.value })} 
+              />
             </label>
+            
             <div className={styles.modalBotoes}>
-              <button type="button" className={`${styles.btn} ${styles.btnExcluir}`} onClick={() => router.push('/estoque')}>Cancelar</button>
-              <button type="submit" className={`${styles.btn} ${styles.btnAdicionar}`}>Salvar</button>
+              <button 
+                type="button" 
+                className={`${styles.btn} ${styles.btnExcluir}`} 
+                onClick={() => router.push('/estoque')}
+              >
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                className={`${styles.btn} ${styles.btnAdicionar}`}
+              >
+                Salvar
+              </button>
             </div>
+            
           </form>
         </main>
       </div>
