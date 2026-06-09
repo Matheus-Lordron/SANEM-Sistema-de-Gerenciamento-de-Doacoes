@@ -1,17 +1,17 @@
-"use client"; // 🚀 Necessário no Next.js para usar eventos (onClick) e Hooks (useRouter)
+"use client";
 
-import styles from './menuBar.module.css';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation'; // 🚀 Importado o roteador do Next.js
+import styles from "./menuBar.module.css";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { FaSignOutAlt } from "react-icons/fa";
 
 export default function MenuBar({ hasNotification }) {
-  const router = useRouter(); // 🚀 Inicializa o roteador
+  const router = useRouter();
 
-  // 🚪 Função para limpar os tokens e sair do sistema
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     localStorage.removeItem("token");
-    router.push("/"); // 🚀 Mude para "/login" se a sua rota de login não for a "/"
+    router.push("/");
   };
 
   return (
@@ -22,44 +22,29 @@ export default function MenuBar({ hasNotification }) {
           <span className={styles.userName}>Fulano da Silva</span>
           <span className={styles.arrowDown}>▼</span>
         </div>
-        
-        <div className={styles.iconWrapper} style={{ position: 'relative' }}>
-        </div>
-        
-        {/* 🚀 Adicionado o onClick e o cursor para mostrar que é clicável */}
-        <div 
-          className={styles.iconWrapper} 
-          onClick={handleLogout} 
-          style={{ cursor: 'pointer' }} 
+
+        <button
+          type="button"
+          className={styles.logoutButton}
+          onClick={handleLogout}
           title="Sair do sistema"
+          aria-label="Sair do sistema"
         >
-          <LogoutIcon />
-        </div>
+          <FaSignOutAlt />
+        </button>
       </div>
     </header>
   );
 }
 
 function UserIcon() {
-    return (
-        <Image
-            src="/user-icon.png"
-            alt="User"
-            width={24}
-            height={24}
-            style={{ marginRight: 12 }}
-        />
-    );
-}
-
-function LogoutIcon() {
-    return (
-        <Image
-            src="/logout-icon.png"
-            alt="Logout"
-            width={24}
-            height={24}
-            style={{ marginRight: 12 }}
-        />
-    );
+  return (
+    <Image
+      src="/user-icon.png"
+      alt="User"
+      width={24}
+      height={24}
+      style={{ marginRight: 12 }}
+    />
+  );
 }

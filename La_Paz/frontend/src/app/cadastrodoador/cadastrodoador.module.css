@@ -121,3 +121,64 @@
     margin-top: 18px;
   }
 } 
+
+/* Ajustes reais do cadastro de doador no tema escuro */
+:global(.dark) .containerGeral {
+  background: var(--color-bg) !important;
+}
+
+:global(.dark) .formWrapper {
+  background: var(--color-bg) !important;
+}
+
+:global(.dark) .formContainer {
+  background: var(--color-bg-alt) !important;
+  border: 1.5px solid var(--color-border-light) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35) !important;
+}
+
+:global(.dark) .titulo {
+  color: #f3f4f6 !important;
+}
+
+:global(.dark) .decoracao {
+  background: var(--color-primary) !important;
+}
+
+:global(.dark) .separador {
+  background: var(--color-border) !important;
+}
+
+:global(.dark) .formulario label,
+:global(.dark) .formulario b {
+  color: #f3f4f6 !important;
+}
+
+:global(.dark) .formulario input {
+  background: #0b1220 !important;
+  color: #f9fafb !important;
+  border: 1.5px solid var(--color-border) !important;
+}
+
+:global(.dark) .formulario input::placeholder {
+  color: #9ca3af !important;
+}
+
+:global(.dark) .formulario input:focus {
+  background: #0f172a !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(78, 161, 255, 0.15) !important;
+}
+
+:global(.dark) .formulario button {
+  background: var(--color-primary-dark) !important;
+  color: #ffffff !important;
+}
+
+:global(.dark) .formulario button:hover {
+  background: var(--color-primary) !important;
+}
+
+:global(.dark) .errorMessage {
+  color: #fecaca !important;
+}
