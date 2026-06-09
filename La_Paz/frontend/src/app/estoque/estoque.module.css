@@ -226,3 +226,151 @@
 .searchInput::placeholder {
   color: #999;
 }
+
+/* Ajustes da tela de estoque no tema escuro */
+:global(.dark) .container {
+  background: var(--color-bg);
+}
+
+:global(.dark) .tabela {
+  background: var(--color-bg-alt);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+:global(.dark) .tabela th {
+  background: var(--color-primary-dark);
+  color: #ffffff;
+}
+
+:global(.dark) .tabela td {
+  color: var(--color-text);
+  border-bottom-color: var(--color-border-light);
+}
+
+:global(.dark) .tabela tbody tr {
+  background: var(--color-bg-alt);
+}
+
+:global(.dark) .tabela tbody tr:nth-child(even) {
+  background: #0f172a;
+}
+
+:global(.dark) .tabela tbody tr:hover {
+  background: #1e293b;
+}
+
+:global(.dark) .btnEditar {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+}
+
+:global(.dark) .btnEditar:hover {
+  background: rgba(78, 161, 255, 0.12);
+}
+
+:global(.dark) .btnExcluir {
+  background: transparent;
+  color: #f87171;
+  border: 1.5px solid #ef4444;
+}
+
+:global(.dark) .btnExcluir:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+:global(.dark) .modal,
+:global(.dark) .formulario {
+  background: var(--color-bg-alt);
+  border-color: var(--color-border-light);
+}
+
+:global(.dark) .formLabel {
+  color: var(--color-primary);
+}
+
+:global(.dark) .formInput,
+:global(.dark) .searchInput {
+  background: #0b1220;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+:global(.dark) .formInput::placeholder,
+:global(.dark) .searchInput::placeholder {
+  color: var(--color-text-light);
+}
+
+:global(.dark) .formInput:focus,
+:global(.dark) .searchInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(78, 161, 255, 0.15);
+}
+
+/* Correção final da tabela de estoque no tema escuro */
+:global(.dark) .tabela {
+  background: #111827 !important;
+  border: 1px solid var(--color-border-light) !important;
+}
+
+:global(.dark) .tabela tbody tr,
+:global(.dark) .tabela tbody tr:nth-child(even),
+:global(.dark) .tabela tbody tr:nth-child(odd) {
+  background: #111827 !important;
+  background-color: #111827 !important;
+}
+
+:global(.dark) .tabela tbody tr:hover {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+}
+
+:global(.dark) .tabela tbody td {
+  background: transparent !important;
+  color: #e5e7eb !important;
+  border-bottom: 1px solid #1f2937 !important;
+}
+
+:global(.dark) .tabela th {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+:global(.dark) .btnEditar {
+  background: transparent !important;
+  color: #60a5fa !important;
+  border: 1.5px solid #3b82f6 !important;
+}
+
+:global(.dark) .btnEditar:hover {
+  background: rgba(59, 130, 246, 0.16) !important;
+}
+
+:global(.dark) .btnExcluir {
+  background: transparent !important;
+  color: #f87171 !important;
+  border: 1.5px solid #ef4444 !important;
+}
+
+:global(.dark) .btnExcluir:hover {
+  background: rgba(239, 68, 68, 0.16) !important;
+}
+
+:global(.dark) .searchInput {
+  background: #0b1220 !important;
+  color: #f9fafb !important;
+  border-color: var(--color-border) !important;
+}
+
+:global(.dark) .searchInput::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Linha crítica do estoque */
+.linhaCritica {
+  background: rgba(192, 57, 43, 0.08) !important;
+}
+
+:global(.dark) .linhaCritica {
+  background: rgba(239, 68, 68, 0.10) !important;
+}

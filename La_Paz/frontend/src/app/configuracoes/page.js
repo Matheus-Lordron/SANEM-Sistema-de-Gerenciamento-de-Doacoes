@@ -3,7 +3,80 @@
 import { useState } from "react";
 import Navigation from "../components/navegation/navegation";
 import MenuBar from "../components/menubar/menubar";
-import toast from "react-hot-toast"; // 🟢 Importação do toast adicionada
+import toast from "react-hot-toast";
+
+const pageStyle = {
+  minHeight: "100vh",
+  background: "var(--color-bg)",
+  color: "var(--color-text)",
+  marginLeft: 220,
+};
+
+const mainStyle = {
+  maxWidth: 700,
+  margin: "40px auto",
+  display: "flex",
+  flexDirection: "column",
+  gap: 40,
+  padding: "0 20px 40px 20px",
+  color: "var(--color-text)",
+};
+
+const sectionStyle = {
+  padding: 20,
+  border: "1px solid var(--color-border-light)",
+  borderRadius: 8,
+  background: "var(--color-bg-alt)",
+  color: "var(--color-text)",
+  boxShadow: "0 8px 28px rgba(0, 0, 0, 0.18)",
+};
+
+const dangerSectionStyle = {
+  padding: 20,
+  border: "1px solid #ef4444",
+  borderRadius: 8,
+  background: "rgba(239, 68, 68, 0.10)",
+  color: "var(--color-text)",
+  boxShadow: "0 8px 28px rgba(0, 0, 0, 0.18)",
+};
+
+const labelStyle = {
+  fontWeight: "bold",
+  color: "var(--color-text)",
+  display: "block",
+  marginBottom: 6,
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: 10,
+  marginBottom: 20,
+  borderRadius: 6,
+  border: "1px solid var(--color-border)",
+  background: "var(--color-bg)",
+  color: "var(--color-text)",
+  outline: "none",
+};
+
+const primaryButtonStyle = {
+  padding: "10px 20px",
+  background: "var(--color-primary-dark)",
+  color: "#fff",
+  borderRadius: 6,
+  border: "none",
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const dangerButtonStyle = {
+  padding: "10px 20px",
+  background: "#d93025",
+  color: "#fff",
+  borderRadius: 6,
+  border: "none",
+  cursor: "pointer",
+  fontWeight: 600,
+};
 
 export default function ConfiguracoesPage() {
   const [nome, setNome] = useState("Seu Nome Atual");
@@ -14,35 +87,30 @@ export default function ConfiguracoesPage() {
 
   function handleSaveProfile() {
     console.log("Salvar nome + descrição", { nome, descricao });
-    // TODO: Chamar API no futuro
-    
-    // 🟢 Alerta de sucesso
     toast.success("Perfil atualizado com sucesso!");
   }
 
   function handleChangePassword() {
     if (novaSenha !== confirmarSenha) {
-      // 🔴 Substituindo o alert nativo pelo toast de erro
       toast.error("As senhas não coincidem!");
       return;
     }
+
     console.log("Alterar senha", { senhaAtual, novaSenha });
-    // TODO: Chamar API no futuro
-    
-    // 🟢 Alerta de sucesso e limpeza dos campos
     toast.success("Senha atualizada com sucesso!");
+
     setSenhaAtual("");
     setNovaSenha("");
     setConfirmarSenha("");
   }
 
   function handleDeleteAccount() {
-    // Mantemos o window.confirm por ser uma barreira de segurança nativa forte antes de deletar
-    if (window.confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível!")) {
+    if (
+      window.confirm(
+        "Tem certeza que deseja excluir sua conta? Esta ação é irreversível!"
+      )
+    ) {
       console.log("Conta excluída");
-      // TODO: Chamar API de exclusão no futuro
-      
-      // 🟢 Alerta de sucesso ao excluir
       toast.success("Conta excluída com sucesso!");
     }
   }
@@ -51,172 +119,82 @@ export default function ConfiguracoesPage() {
     <>
       <Navigation />
 
-      <div style={{ minHeight: "100vh", background: "#fff", marginLeft: 220 }}>
+      <div style={pageStyle}>
         <MenuBar />
 
-        <main
-          style={{
-            maxWidth: 700,
-            margin: "40px auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: 40,
-            padding: "0 20px",
-          }}
-        >
+        <main style={mainStyle}>
+          <section style={sectionStyle}>
+            <h2 style={{ marginBottom: 20, color: "var(--color-text)" }}>
+              Editar Perfil
+            </h2>
 
-          {/* ============================== */}
-          {/* SEÇÃO: EDITAR PERFIL         */}
-          {/* ============================== */}
-          <section
-            style={{
-              padding: 20,
-              border: "1px solid #ddd",
-              borderRadius: 8,
-              background: "#fafafa",
-            }}
-          >
-            <h2 style={{ marginBottom: 20 }}>Editar Perfil</h2>
-
-            <label style={{ fontWeight: "bold" }}>Nome:</label>
+            <label style={labelStyle}>Nome:</label>
             <input
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              style={{
-                width: "100%",
-                padding: 10,
-                marginBottom: 20,
-                borderRadius: 6,
-                border: "1px solid #ccc",
-              }}
+              style={inputStyle}
             />
 
-            <label style={{ fontWeight: "bold" }}>Descrição:</label>
+            <label style={labelStyle}>Descrição:</label>
             <textarea
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               rows={3}
               style={{
-                width: "100%",
-                padding: 10,
-                marginBottom: 20,
-                borderRadius: 6,
-                border: "1px solid #ccc",
+                ...inputStyle,
+                resize: "vertical",
               }}
             />
 
-            <button
-              onClick={handleSaveProfile}
-              style={{
-                padding: "10px 20px",
-                background: "#1a73e8",
-                color: "#fff",
-                borderRadius: 6,
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={handleSaveProfile} style={primaryButtonStyle}>
               Salvar Alterações
             </button>
           </section>
 
-          {/* ============================== */}
-          {/* SEÇÃO: ALTERAR SENHA         */}
-          {/* ============================== */}
-          <section
-            style={{
-              padding: 20,
-              border: "1px solid #ddd",
-              borderRadius: 8,
-              background: "#fafafa",
-            }}
-          >
-            <h2 style={{ marginBottom: 20 }}>Alterar Senha</h2>
+          <section style={sectionStyle}>
+            <h2 style={{ marginBottom: 20, color: "var(--color-text)" }}>
+              Alterar Senha
+            </h2>
 
-            <label style={{ fontWeight: "bold" }}>Senha Atual:</label>
+            <label style={labelStyle}>Senha Atual:</label>
             <input
               type="password"
               value={senhaAtual}
               onChange={(e) => setSenhaAtual(e.target.value)}
-              style={{
-                width: "100%",
-                padding: 10,
-                marginBottom: 20,
-                borderRadius: 6,
-                border: "1px solid #ccc",
-              }}
+              style={inputStyle}
             />
 
-            <label style={{ fontWeight: "bold" }}>Nova Senha:</label>
+            <label style={labelStyle}>Nova Senha:</label>
             <input
               type="password"
               value={novaSenha}
               onChange={(e) => setNovaSenha(e.target.value)}
-              style={{
-                width: "100%",
-                padding: 10,
-                marginBottom: 20,
-                borderRadius: 6,
-                border: "1px solid #ccc",
-              }}
+              style={inputStyle}
             />
 
-            <label style={{ fontWeight: "bold" }}>Confirmar Nova Senha:</label>
+            <label style={labelStyle}>Confirmar Nova Senha:</label>
             <input
               type="password"
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
-              style={{
-                width: "100%",
-                padding: 10,
-                borderRadius: 6,
-                border: "1px solid #ccc",
-                marginBottom: 20,
-              }}
+              style={inputStyle}
             />
 
-            <button
-              onClick={handleChangePassword}
-              style={{
-                padding: "10px 20px",
-                background: "#1a73e8",
-                color: "#fff",
-                borderRadius: 6,
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={handleChangePassword} style={primaryButtonStyle}>
               Atualizar Senha
             </button>
           </section>
 
-          {/* ============================== */}
-          {/* SEÇÃO: EXCLUIR CONTA         */}
-          {/* ============================== */}
-          <section
-            style={{
-              padding: 20,
-              border: "1px solid #f5b5b5",
-              borderRadius: 8,
-              background: "#ffecec",
-            }}
-          >
-            <h2 style={{ color: "#d93025" }}>Excluir Conta</h2>
-            <p style={{ marginBottom: 20 }}>
+          <section style={dangerSectionStyle}>
+            <h2 style={{ color: "#f87171", marginBottom: 12 }}>
+              Excluir Conta
+            </h2>
+
+            <p style={{ marginBottom: 20, color: "var(--color-text)" }}>
               Esta ação é permanente e não poderá ser desfeita.
             </p>
 
-            <button
-              onClick={handleDeleteAccount}
-              style={{
-                padding: "10px 20px",
-                background: "#d93025",
-                color: "#fff",
-                borderRadius: 6,
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={handleDeleteAccount} style={dangerButtonStyle}>
               Excluir Conta
             </button>
           </section>

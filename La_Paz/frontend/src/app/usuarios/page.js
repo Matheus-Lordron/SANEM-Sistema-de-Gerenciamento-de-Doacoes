@@ -39,9 +39,9 @@ export default function UsuariosPage() {
         }
 
         if (requestError.status === 401 || requestError.status === 403) {
-          setError("Voce precisa fazer login para visualizar os usuarios.");
+          setError("Você precisa fazer login para visualizar os usuários.");
         } else {
-          setError(requestError.message || "Erro ao buscar usuarios.");
+          setError(requestError.message || "Erro ao buscar usuários.");
         }
       } finally {
         if (isMounted) {
@@ -66,22 +66,41 @@ export default function UsuariosPage() {
   return (
     <>
       <Navigation />
-      <div style={{ minHeight: "100vh", background: "#fff", marginLeft: 220 }}>
+
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "var(--color-bg)",
+          color: "var(--color-text)",
+          marginLeft: 220,
+        }}
+      >
         <MenuBar />
+
         <main
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "flex-start",
-            minHeight: "80vh",
-            padding: "20px",
+            minHeight: "calc(100vh - 56px)",
+            padding: "32px 20px 40px 20px",
             width: "100%",
             maxWidth: "800px",
             margin: "0 auto",
+            background: "var(--color-bg)",
+            color: "var(--color-text)",
           }}
         >
-          <h2 style={{ color: "#0070f3", marginBottom: "20px" }}>Usuarios</h2>
+          <h2
+            style={{
+              color: "var(--color-primary)",
+              marginBottom: "20px",
+              fontWeight: 800,
+            }}
+          >
+            Usuários
+          </h2>
 
           <input
             type="text"
@@ -93,19 +112,26 @@ export default function UsuariosPage() {
               width: "100%",
               maxWidth: "400px",
               marginBottom: "20px",
-              border: "1px solid #ddd",
+              border: "1px solid var(--color-border)",
               borderRadius: "6px",
+              background: "var(--color-bg-alt)",
+              color: "var(--color-text)",
+              outline: "none",
             }}
           />
 
           {loading ? (
-            <p>Carregando usuarios...</p>
+            <p style={{ color: "var(--color-text-light)" }}>
+              Carregando usuários...
+            </p>
           ) : error ? (
-            <p style={{ color: "#c62828", textAlign: "center" }}>{error}</p>
+            <p style={{ color: "#f87171", textAlign: "center" }}>{error}</p>
           ) : filteredUsers.length > 0 ? (
             filteredUsers.map((user) => <UserCard key={user.id} user={user} />)
           ) : (
-            <p>Nenhum usuario encontrado.</p>
+            <p style={{ color: "var(--color-text-light)" }}>
+              Nenhum usuário encontrado.
+            </p>
           )}
         </main>
       </div>

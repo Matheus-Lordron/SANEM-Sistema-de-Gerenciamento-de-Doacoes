@@ -1,4 +1,5 @@
 "use client";
+
 import Navigation from "../components/navegation/navegation";
 import MenuBar from "../components/menubar/menubar";
 import { useEffect, useState } from "react";
@@ -50,15 +51,12 @@ export default function DashboardPage() {
       const doadores = JSON.parse(
         localStorage.getItem("mockDoadores") || "[]"
       );
-      const estoque = JSON.parse(
-        localStorage.getItem("mockEstoque") || "[]"
-      );
+      const estoque = JSON.parse(localStorage.getItem("mockEstoque") || "[]");
 
       let doacoesRaw = [];
+
       try {
-        doacoesRaw = JSON.parse(
-          localStorage.getItem("mockDoacoes") || "[]"
-        );
+        doacoesRaw = JSON.parse(localStorage.getItem("mockDoacoes") || "[]");
       } catch {
         doacoesRaw = [];
       }
@@ -97,7 +95,8 @@ export default function DashboardPage() {
       const donationsForChart = doacoesNormalizadas.map((d) => ({
         date: d.date,
       }));
-      setChartData(groupByMonth(donationsForChart, 12)); // 👈 12 meses
+
+      setChartData(groupByMonth(donationsForChart, 12));
     } catch (err) {
       console.error("Erro ao ler dados do localStorage:", err);
     }
@@ -106,19 +105,38 @@ export default function DashboardPage() {
   return (
     <>
       <Navigation />
-      <div style={{ minHeight: "100vh", background: "#fff", marginLeft: 220 }}>
+
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "var(--color-bg)",
+          color: "var(--color-text)",
+          marginLeft: 220,
+        }}
+      >
         <MenuBar />
+
         <main
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             padding: "40px",
+            background: "var(--color-bg)",
+            color: "var(--color-text)",
+            minHeight: "calc(100vh - 56px)",
           }}
         >
-          <h2 style={{ color: "#0070f3", marginBottom: "30px" }}>Dashboard</h2>
+          <h2
+            style={{
+              color: "var(--color-text)",
+              marginBottom: "30px",
+              fontWeight: 800,
+            }}
+          >
+            Dashboard
+          </h2>
 
-          {/* Cards */}
           <div
             style={{
               display: "flex",
@@ -140,64 +158,110 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Gráfico */}
           <div
             style={{
-              background: "#f9fafb",
+              background: "var(--color-bg-alt)",
+              color: "var(--color-text)",
+              border: "1px solid var(--color-border-light)",
               borderRadius: "12px",
               padding: "20px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              boxShadow: "0 8px 28px rgba(0, 0, 0, 0.18)",
               width: "100%",
               maxWidth: "800px",
               marginBottom: "40px",
             }}
           >
-            <h3 style={{ marginBottom: "10px", color: "#374151" }}>
-              Gráfico de Doações (últimos 12 meses)
+            <h3
+              style={{
+                marginBottom: "10px",
+                color: "var(--color-text)",
+                fontWeight: 700,
+              }}
+            >
+              Gráfico de Doações últimos 12 meses
             </h3>
+
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData}>
-                <XAxis dataKey="mes" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="doacoes" fill="#0070f3" />
+                <XAxis
+                  dataKey="mes"
+                  stroke="var(--color-text-light)"
+                  tick={{ fill: "var(--color-text-light)" }}
+                />
+                <YAxis
+                  stroke="var(--color-text-light)"
+                  tick={{ fill: "var(--color-text-light)" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--color-bg-alt)",
+                    color: "var(--color-text)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "8px",
+                  }}
+                  labelStyle={{
+                    color: "var(--color-text)",
+                  }}
+                />
+                <Bar dataKey="doacoes" fill="#3b82f6" />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Últimas ações */}
           <div
             style={{
-              background: "#f9fafb",
+              background: "var(--color-bg-alt)",
+              color: "var(--color-text)",
+              border: "1px solid var(--color-border-light)",
               borderRadius: "12px",
               padding: "20px",
               width: "100%",
               maxWidth: "800px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              boxShadow: "0 8px 28px rgba(0, 0, 0, 0.18)",
             }}
           >
-            <h3 style={{ marginBottom: "15px", color: "#374151" }}>
+            <h3
+              style={{
+                marginBottom: "15px",
+                color: "var(--color-text)",
+                fontWeight: 700,
+              }}
+            >
               Últimas Ações
             </h3>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                background: "var(--color-bg-alt)",
+                color: "var(--color-text)",
+              }}
+            >
               <thead>
                 <tr
                   style={{
                     textAlign: "left",
-                    borderBottom: "2px solid #e5e7eb",
+                    borderBottom: "2px solid var(--color-border)",
+                    background: "var(--color-primary-dark)",
                   }}
                 >
-                  <th style={{ padding: "10px" }}>Usuário</th>
-                  <th style={{ padding: "10px" }}>Ação</th>
-                  <th style={{ padding: "10px" }}>Data</th>
+                  <th style={{ padding: "10px", color: "#ffffff" }}>Usuário</th>
+                  <th style={{ padding: "10px", color: "#ffffff" }}>Ação</th>
+                  <th style={{ padding: "10px", color: "#ffffff" }}>Data</th>
                 </tr>
               </thead>
+
               <tbody>
                 {recentActions.length === 0 ? (
                   <tr>
                     <td
                       colSpan={3}
-                      style={{ padding: "10px", color: "#6b7280" }}
+                      style={{
+                        padding: "12px",
+                        color: "var(--color-text-light)",
+                        borderBottom: "1px solid var(--color-border-light)",
+                      }}
                     >
                       Sem registros recentes.
                     </td>
@@ -206,11 +270,23 @@ export default function DashboardPage() {
                   recentActions.map((a, index) => (
                     <tr
                       key={index}
-                      style={{ borderBottom: "1px solid #e5e7eb" }}
+                      style={{
+                        borderBottom: "1px solid var(--color-border-light)",
+                        background:
+                          index % 2 === 0
+                            ? "var(--color-bg-alt)"
+                            : "var(--color-bg)",
+                      }}
                     >
-                      <td style={{ padding: "10px" }}>{a.user ?? "—"}</td>
-                      <td style={{ padding: "10px" }}>{a.action ?? "—"}</td>
-                      <td style={{ padding: "10px" }}>{a.date ?? "—"}</td>
+                      <td style={{ padding: "10px", color: "var(--color-text)" }}>
+                        {a.user ?? "—"}
+                      </td>
+                      <td style={{ padding: "10px", color: "var(--color-text)" }}>
+                        {a.action ?? "—"}
+                      </td>
+                      <td style={{ padding: "10px", color: "var(--color-text)" }}>
+                        {a.date ?? "—"}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -224,16 +300,14 @@ export default function DashboardPage() {
 }
 
 function normalizeDate(d) {
-  const raw =
-    d?.date ??
-    d?.data ??
-    d?.createdAt ??
-    d?.created_at ??
-    null;
+  const raw = d?.date ?? d?.data ?? d?.createdAt ?? d?.created_at ?? null;
 
   if (!raw) return null;
+
   const dt = new Date(raw);
+
   if (isNaN(dt.getTime())) return null;
+
   return dt.toISOString();
 }
 
@@ -244,20 +318,41 @@ function groupByMonth(donations, monthsBack = 4) {
 
   for (let i = monthsBack - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    buckets.push({ key, label: capitalize(fmt.format(d)), count: 0 });
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+
+    buckets.push({
+      key,
+      label: capitalize(fmt.format(d)),
+      count: 0,
+    });
   }
 
   (donations ?? []).forEach((don) => {
     if (!don?.date) return;
-    const dt = new Date(d.date);
+
+    const dt = new Date(don.date);
+
     if (isNaN(dt.getTime())) return;
-    const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
+
+    const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+
     const b = buckets.find((x) => x.key === key);
-    if (b) b.count += 1;
+
+    if (b) {
+      b.count += 1;
+    }
   });
 
-  return buckets.map((b) => ({ mes: b.label, doacoes: b.count }));
+  return buckets.map((b) => ({
+    mes: b.label,
+    doacoes: b.count,
+  }));
 }
 
 function capitalize(s) {
@@ -274,16 +369,33 @@ function Card({ title, value, color }) {
         padding: "20px 30px",
         minWidth: "200px",
         textAlign: "center",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.18)",
         transition: "transform 0.2s ease",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "scale(1.05)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "scale(1.0)";
+      }}
     >
-      <h3 style={{ color: "#fff", fontWeight: "600", marginBottom: "8px" }}>
+      <h3
+        style={{
+          color: "#fff",
+          fontWeight: "600",
+          marginBottom: "8px",
+        }}
+      >
         {title}
       </h3>
-      <p style={{ fontSize: "24px", fontWeight: "bold", color: "#fff" }}>
+
+      <p
+        style={{
+          fontSize: "24px",
+          fontWeight: "bold",
+          color: "#fff",
+        }}
+      >
         {value}
       </p>
     </div>

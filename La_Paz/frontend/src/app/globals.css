@@ -15,19 +15,30 @@
 }
 
 /* Paleta de cores principal (TEMA ESCURO) controlada pelo next-themes */
-/* Inverte todas as cores do site inteiro com uma linha de código */
 .dark {
-  filter: invert(1) hue-rotate(180deg);
-  background-color: #121212; /* Garante que o fundo base do body fique escuro */
+  --color-primary: #4ea1ff;
+  --color-primary-dark: #2563eb;
+  --color-secondary: #f59e0b;
+  --color-secondary-dark: #d97706;
+  --color-bg: #0b0f14;
+  --color-bg-alt: #111827;
+  --color-text: #e5e7eb;
+  --color-text-light: #9ca3af;
+  --color-border: #374151;
+  --color-border-light: #1f2937;
+  --color-error: #ef5350;
+  --color-success: #66bb6a;
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
-/* "Desinverte" as imagens para que elas não fiquem parecendo um raio-X */
-.dark img, 
-.dark picture, 
+/* Mantém imagens normais no modo escuro */
+.dark img,
+.dark picture,
 .dark video {
-  filter: invert(1) hue-rotate(180deg);
+  filter: none;
 }
-
 html,
 body {
   max-width: 100vw;
@@ -134,4 +145,120 @@ h1, h2, h3 {
     padding: 18px 4vw;
     max-width: 98vw;
   }
+}
+
+/* ===== BASE GLOBAL DE CORREÇÃO DO DARK MODE ===== */
+
+html.dark,
+html.dark body {
+  background: var(--color-bg) !important;
+  color: var(--color-text) !important;
+}
+
+/* Corrige páginas que ainda estão com fundo branco */
+html.dark main,
+html.dark section,
+html.dark article,
+html.dark [class*="container"],
+html.dark [class*="Container"],
+html.dark [class*="page"],
+html.dark [class*="Page"],
+html.dark [class*="wrapper"],
+html.dark [class*="Wrapper"],
+html.dark [class*="content"],
+html.dark [class*="Content"] {
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
+}
+
+/* Corrige cards, caixas, resumos, formulários e painéis */
+html.dark [class*="card"],
+html.dark [class*="Card"],
+html.dark [class*="box"],
+html.dark [class*="Box"],
+html.dark [class*="formContainer"],
+html.dark [class*="formulario"],
+html.dark [class*="resumo"],
+html.dark [class*="Resumo"],
+html.dark [class*="modal"],
+html.dark [class*="Modal"],
+html.dark [class*="perfil"],
+html.dark [class*="Perfil"] {
+  background-color: var(--color-bg-alt) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border-light) !important;
+}
+
+/* Mantém área da logo clara para não sumir a imagem */
+html.dark [class*="logoContainer"] {
+  background: #ffffff !important;
+}
+
+/* Textos comuns */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6,
+html.dark label,
+html.dark p,
+html.dark li,
+html.dark b,
+html.dark strong {
+  color: var(--color-text) !important;
+}
+
+/* Inputs gerais */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background: #0b1220 !important;
+  color: #f9fafb !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Tabelas gerais */
+html.dark table {
+  background: var(--color-bg-alt) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border-light) !important;
+}
+
+html.dark thead,
+html.dark th {
+  background: var(--color-primary-dark) !important;
+  color: #ffffff !important;
+  border-color: var(--color-border-light) !important;
+}
+
+html.dark tbody tr {
+  background: var(--color-bg-alt) !important;
+}
+
+html.dark tbody tr:nth-child(even) {
+  background: #0f172a !important;
+}
+
+html.dark td {
+  color: var(--color-text) !important;
+  border-color: var(--color-border-light) !important;
+}
+
+/* Botões claros que ficam estranhos no dark mode */
+html.dark button {
+  border-color: var(--color-border) !important;
+}
+
+/* Evita imagem invertida */
+html.dark img,
+html.dark picture,
+html.dark video,
+html.dark canvas {
+  filter: none !important;
 }
