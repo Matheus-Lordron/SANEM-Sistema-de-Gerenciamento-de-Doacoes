@@ -111,3 +111,117 @@
 :global(.dark) .logoutButton:hover {
   color: var(--color-primary) !important;
 }
+/* Confirmação de saída dentro da página */
+.logoutConfirmOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.logoutConfirmBox {
+  width: 100%;
+  max-width: 380px;
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-light);
+  border-radius: 14px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.logoutConfirmTitle {
+  margin: 0 0 12px 0;
+  color: var(--color-text);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.logoutConfirmText {
+  margin: 0 0 24px 0;
+  color: var(--color-text-light);
+  font-size: 1rem;
+}
+
+.logoutConfirmActions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.logoutCancelButton,
+.logoutConfirmButton {
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.logoutCancelButton {
+  background: transparent;
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
+}
+
+.logoutCancelButton:hover {
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.logoutConfirmButton {
+  background: #dc2626;
+  color: #ffffff;
+  border: 1.5px solid #dc2626;
+}
+
+.logoutConfirmButton:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+/* Dark mode */
+:global(.dark) .logoutConfirmOverlay {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+:global(.dark) .logoutConfirmBox {
+  background: #111827;
+  color: var(--color-text);
+  border-color: #1f2937;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+
+:global(.dark) .logoutConfirmTitle {
+  color: #f3f4f6 !important;
+}
+
+:global(.dark) .logoutConfirmText {
+  color: #cbd5e1 !important;
+}
+
+:global(.dark) .logoutCancelButton {
+  background: transparent !important;
+  color: #e5e7eb !important;
+  border: 1.5px solid #374151 !important;
+}
+
+:global(.dark) .logoutCancelButton:hover {
+  background: rgba(148, 163, 184, 0.16) !important;
+}
+
+:global(.dark) .logoutConfirmButton {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+}
+
+:global(.dark) .logoutConfirmButton:hover {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
