@@ -5,8 +5,13 @@ import com.oficina_dev.backend.repositories.VoluntaryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder; // 🔥 IMPORTADO
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
 import java.util.Optional;
 
 @RestController
@@ -16,12 +21,15 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final VoluntaryRepository voluntaryRepository;
-    private final PasswordEncoder passwordEncoder; // 🔥 Injeta o BCrypt do SecurityConfig
+    private final PasswordEncoder passwordEncoder;
+    private final JwtEncoder jwtEncoder;
 
-    // Construtor para o Spring injetar os componentes automaticamente
-    public AuthController(VoluntaryRepository voluntaryRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(VoluntaryRepository voluntaryRepository,
+                          PasswordEncoder passwordEncoder,
+                          JwtEncoder jwtEncoder) {
         this.voluntaryRepository = voluntaryRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtEncoder = jwtEncoder;
     }
 
     public record LoginRequestDto(String email, String password) {}
@@ -31,17 +39,24 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequestDto request) {
         logger.info("Tentativa de login para o email: {}", request.email());
 
-        // 1️⃣ Busca o voluntário no banco através do e-mail vinculado à pessoa
         Optional<Voluntary> voluntaryOptional = voluntaryRepository.findByPersonEmailEmail(request.email());
 
         if (voluntaryOptional.isPresent()) {
             Voluntary voluntary = voluntaryOptional.get();
 
-            // 2️⃣ Compara a senha digitada no front com a senha criptografada do banco (BCrypt)
             if (passwordEncoder.matches(request.password(), voluntary.getPassword())) {
+                Instant now = Instant.now();
+                JwtClaimsSet claims = JwtClaimsSet.builder()
+                        .issuer("sanem-backend")
+                        .issuedAt(now)
+                        .expiresAt(now.plusSeconds(86400)) // 24h
+                        .subject(voluntary.getId().toString())
+                        .claim("email", request.email())
+                        .build();
 
-                logger.info("Login efetuado com sucesso para o usuário do banco de dados!");
-                return ResponseEntity.ok(new LoginResponseDto("token-jwt-super-seguro-12345"));
+                String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+                logger.info("Login efetuado com sucesso!");
+                return ResponseEntity.ok(new LoginResponseDto(token));
             }
         }
 

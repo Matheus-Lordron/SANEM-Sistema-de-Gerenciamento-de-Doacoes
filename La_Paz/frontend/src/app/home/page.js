@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import MenuBar from '../components/menubar/menubar';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -5,9 +8,25 @@ import Navigation from '../components/navegation/navegation';
 import styles from './home.module.css';
 import { FaBoxes, FaHandHoldingHeart, FaUsers, FaUserFriends, FaChartBar, FaCog } from 'react-icons/fa';
 
+// Importa o cliente do Supabase
+import { createClient } from '../../utils/supabase/client';
 
 export default function Home() {
   const hasNotification = true;
+  const [userName, setUserName] = useState("");
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Tenta pegar o nome configurado nos metadados, se não houver, usa a primeira parte do e-mail
+        const displayName = user.user_metadata?.name || user.email.split('@')[0];
+        setUserName(displayName);
+      }
+    }
+    loadUser();
+  }, []);
 
   const navOptions = [
     { href: '/estoque', label: 'Estoque', icon: <FaBoxes /> },
@@ -31,7 +50,10 @@ export default function Home() {
           className={styles.donationImage}
           priority
         />
-        <h1 className={styles.title}>Bem-vindo à Sanem!</h1>
+        {/* Adiciona o nome do usuário de forma dinâmica */}
+        <h1 className={styles.title}>
+          Bem-vindo(a){userName ? `, ${userName}` : ''} à Sanem!
+        </h1>
         <p className={styles.effectPhrase}>
           "A solidariedade transforma vidas. Doe hoje e faça a diferença!"
         </p>
