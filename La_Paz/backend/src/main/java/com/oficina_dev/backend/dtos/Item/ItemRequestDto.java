@@ -1,6 +1,7 @@
 package com.oficina_dev.backend.dtos.Item;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,16 +18,15 @@ public class ItemRequestDto {
     @Size(min = 3, max = 100)
     private String name;
 
-    @NotBlank
+    @NotNull // Trocado de NotBlank para NotNull
     private Character sex;
 
-    @NotBlank
+    @NotNull // Trocado de NotBlank para NotNull
     private Integer quantity;
 
-    @NotBlank
+    @NotNull // Trocado de NotBlank para NotNull
     private UUID categoryId;
 
-    @NotBlank
+    @NotNull // Trocado de NotBlank para NotNull
     private UUID sizeId;
-
 }

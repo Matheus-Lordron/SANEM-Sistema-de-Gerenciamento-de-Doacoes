@@ -13,21 +13,33 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Arrays;
+import java.util.Base64;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // Usado APENAS pelo JwtEncoder (geração de tokens próprios, se necessário)
     @Value("${supabase.jwt.secret}")
     private String jwtSecret;
+
+    // Endpoint JWKS do Supabase — valida tokens RS256 com a chave pública
+    @Value("${supabase.jwks.uri}")
+    private String jwksUri;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,15 +60,32 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        byte[] keyBytes = java.util.Base64.getDecoder().decode(jwtSecret);
-        SecretKey secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
-        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:3000",
+                "https://*.vercel.app"
+        ));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     @Bean
+    public JwtDecoder jwtDecoder() {
+        // ✅ Declara ES256 explicitamente — algoritmo real do Supabase
+        return NimbusJwtDecoder.withJwkSetUri(jwksUri)
+                .jwsAlgorithm(SignatureAlgorithm.ES256)
+                .build();
+    }
+    @Bean
     public JwtEncoder jwtEncoder() {
-        byte[] keyBytes = java.util.Base64.getDecoder().decode(jwtSecret);
+        // Mantido para o AuthController — gera tokens HS256 internos se necessário
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
         SecretKey secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
         JWKSource<SecurityContext> jwkSource = new ImmutableSecret<>(secretKey);
         return new NimbusJwtEncoder(jwkSource);
