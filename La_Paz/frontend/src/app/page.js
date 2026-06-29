@@ -4,11 +4,11 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import { createClient } from "../utils/supabase/client"; // Import do novo Client
+import { createClient } from "../utils/supabase/client";
 
 export default function Login() {
   const router = useRouter();
-  const supabase = createClient(); // Inicializa o Supabase aqui
+  const supabase = createClient();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -38,7 +38,6 @@ export default function Login() {
       }
 
       if (data.session) {
-        // Redireciona e força o refresh da rota para os cookies sincronizarem
         router.push("/home");
         router.refresh(); 
       }
@@ -56,7 +55,9 @@ export default function Login() {
           <Image src="/logo-sanem.svg" alt="Logo SANEM" width={120} height={120} className={styles.logo} />
         </div>
         <h2 className={styles.loginTitle}>Login</h2>
-        <form className={styles.loginForm} onSubmit={handleSubmit}>
+        
+        {/* Adicionado suppressHydrationWarning para evitar erro com extensões */}
+        <form className={styles.loginForm} onSubmit={handleSubmit} suppressHydrationWarning>
           <input
             name="email"
             type="email"
@@ -66,6 +67,7 @@ export default function Login() {
             onChange={handleChange}
             required
             disabled={isSubmitting}
+            suppressHydrationWarning
           />
           <input
             name="password"
@@ -76,6 +78,7 @@ export default function Login() {
             onChange={handleChange}
             required
             disabled={isSubmitting}
+            suppressHydrationWarning
           />
           <button type="submit" className={styles.button} disabled={isSubmitting}>
             {isSubmitting ? "Entrando..." : "Login"}
