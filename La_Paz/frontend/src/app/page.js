@@ -1,29 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react"; // 💡 Removi o useEffect daqui
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import { login } from "../lib/api"; // 💡 Se não for usar o getStoredToken aqui, pode remover o import dele
+import { createClient } from "../utils/supabase/client";
 
 export default function Login() {
   const router = useRouter();
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+  const supabase = createClient();
+
+  const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ❌ O bloco do "useEffect" que estava aqui foi removido!
-  // Agora o Next.js nunca vai pular essa tela sozinho.
-
   function handleChange(event) {
     const { name, value } = event.target;
-    setForm((currentForm) => ({
-      ...currentForm,
-      [name]: value,
-    }));
+    setForm((currentForm) => ({ ...currentForm, [name]: value }));
     if (error) setError("");
   }
 
@@ -33,24 +26,23 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const response = await login(form);
-      const token = response?.token;
+      const { data, error: supabaseError } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
 
-      if (!token) {
-        setError("Credenciais inválidas. Não foi possível gerar o acesso.");
+      if (supabaseError) {
+        setError("Usuário ou senha incorretos.");
         setIsSubmitting(false);
         return;
       }
 
-      router.push("/home");
-    } catch (requestError) {
-      if (requestError.status === 401 || requestError.status === 403) {
-        setError("Usuário ou senha incorretos.");
-      } else if (requestError.status === 404) {
-        setError("Endpoint de login não encontrado em /api/auth/login.");
-      } else {
-        setError(requestError.message || "Servidor indisponível no momento.");
+      if (data.session) {
+        router.push("/home");
+        router.refresh(); 
       }
+    } catch (err) {
+      setError("Servidor indisponível no momento.");
     } finally {
       setIsSubmitting(false);
     }
@@ -63,39 +55,36 @@ export default function Login() {
           <Image src="/logo-sanem.svg" alt="Logo SANEM" width={120} height={120} className={styles.logo} />
         </div>
         <h2 className={styles.loginTitle}>Login</h2>
-        <form className={styles.loginForm} onSubmit={handleSubmit}>
+        
+        {/* Adicionado suppressHydrationWarning para evitar erro com extensões */}
+        <form className={styles.loginForm} onSubmit={handleSubmit} suppressHydrationWarning>
           <input
-            id="email"
             name="email"
             type="email"
             placeholder="E-mail"
             className={styles.input}
             value={form.email}
             onChange={handleChange}
-            autoComplete="email"
             required
             disabled={isSubmitting}
+            suppressHydrationWarning
           />
           <input
-            id="password"
             name="password"
             type="password"
             placeholder="Senha"
             className={styles.input}
             value={form.password}
             onChange={handleChange}
-            autoComplete="current-password"
             required
             disabled={isSubmitting}
+            suppressHydrationWarning
           />
           <button type="submit" className={styles.button} disabled={isSubmitting}>
             {isSubmitting ? "Entrando..." : "Login"}
           </button>
         </form>
-        
         {error && <div className={styles.errorMsg}>{error}</div>}
-        
-        <a href="#" className={styles.forgot}>Esqueci minha senha</a>
       </div>
     </div>
   );
